@@ -5,53 +5,19 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
-class AuthController extends Controller
+class AdminController extends Controller
 {
-    public function login(Request $request)
+    public function index()
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Invalid login details'
-            ], 401);
-        }
-
-        $user = User::where('email', $request['email'])->firstOrFail();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-        $user->getRoleNames();
-      
-
+        $users = User::all()->load('roles');
         return response()->json([
-            'success' => true,
-            'message' => 'User logged in successfully',
-            'data' => $user ,
-            'access_token' => $token,
-        ]);
-
-    }
-
-    public function logout(Request $request)
-    {
-        Auth::user()->tokens()->delete();
-
-        return response()->json([
-            'message' => 'You have successfully logged out and the token was successfully deleted'
+            'data' => $users
         ]);
     }
-
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -61,6 +27,7 @@ class AuthController extends Controller
             'confirm_password' => 'required|same:password',
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
+            'role' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -77,13 +44,14 @@ class AuthController extends Controller
             'house_hold' => $request->house_hold,
         ]);
 
-        $user->assignRole('customer');
+
+        $user->assignRole($request->role);
         $user->getRoleNames();
 
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 }
