@@ -14,12 +14,17 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('date');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('type_trash');
-            $table->string('price');
-            $table->string('weight');
+            $table->text('type_trash');
+            $table->text('price');
+            $table->text('weight');
             $table->string('total_price');
             $table->timestamps();
+        });
+
+        Schema::create('transaction_user', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('transaction_id')->constrained()->onDelete('cascade');
+            $table->primary(['user_id', 'transaction_id']);
         });
     }
 

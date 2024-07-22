@@ -28,8 +28,12 @@ Route::get('/cek_user', [AuthController::class, 'cek_user']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
+Route::get('/admin/transactions', [AdminController::class, 'transactions'])->middleware(['auth:sanctum', 'role:admin']);
 Route::post('/admin/register', [AdminController::class, 'register'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/users', [AdminController::class, 'index'])->middleware(['auth:sanctum', 'role:admin']);
+Route::get('/admin/users/{id}', [AdminController::class, 'show'])->middleware(['auth:sanctum', 'role:admin']);
+Route::delete('/admin/users/{id}', [AdminController::class, 'destroy'])->middleware(['auth:sanctum', 'role:admin']);
+Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middleware(['auth:sanctum', 'role:admin']);
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth:sanctum', 'role:customer']);
 Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'])->middleware(['auth:sanctum', 'role:customer']);
@@ -37,3 +41,4 @@ Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'
 Route::get('/driver/schedules', [DriverController::class, 'index'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/{id}', [DriverController::class, 'show'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/pickup/{id}', [DriverController::class, 'pickup'])->middleware(['auth:sanctum', 'role:driver']);
+Route::post('/driver/schedules/transaction/{id}/input', [DriverController::class, 'inputTransaction'])->middleware(['auth:sanctum', 'role:driver']);

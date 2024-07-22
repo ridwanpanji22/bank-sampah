@@ -50,13 +50,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function schedules()
+    public function schedule()
     {
         return $this->hasMany(Schedule::class);
     }
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsToMany(Transaction::class);
     }
 }
