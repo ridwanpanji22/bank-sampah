@@ -144,8 +144,33 @@ class AdminController extends Controller
     public function transactions()
     {
         $transactions = Transaction::all();
+    
+        $formattedTransactions = $transactions->map(function($transaction) {
+            $type_trash = json_decode($transaction->type_trash);
+            $price = json_decode($transaction->price);
+            $weight = json_decode($transaction->weight);
+
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $transaction->id,
+                'date' => $transaction->date,
+                'schedule_id' => $transaction->schedule_id,
+                'trash' => $trash,
+                'created_at' => $transaction->created_at,
+                'updated_at' => $transaction->updated_at,
+            ];
+        });
+
         return response()->json([
-            'data' => $transactions
+            'data' => $formattedTransactions
         ]);
     }
 }

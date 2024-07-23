@@ -37,6 +37,7 @@ Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middlewar
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth:sanctum', 'role:customer']);
 Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'])->middleware(['auth:sanctum', 'role:customer']);
+Route::get('/dashboard/schedule/', [DashboardController::class, 'statusSchedule'])->middleware(['auth:sanctum', 'role:customer']);
 
 Route::get('/driver/schedules', [DriverController::class, 'index'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/{id}', [DriverController::class, 'show'])->middleware(['auth:sanctum', 'role:driver']);

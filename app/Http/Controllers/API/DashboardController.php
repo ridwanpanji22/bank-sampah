@@ -35,6 +35,21 @@ class DashboardController extends Controller
         if ($validated->fails()) {
             return response()->json($validated->errors());
         }
+
+        $schedules = Schedule::where('user_id', $request->user()->id)
+                        ->where('pickup_date', $request->pickup_date)
+                        ->orWhere('user_id', $request->user()->id)
+                        ->where('created_at', 'like', $request->pickup_date.'%')
+                        ->get();
+
+        if (!$schedules->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only create one schedule per day',
+                'data' => $schedules
+            ], 409); // 409 Conflict
+        }
+
         $user = User::find($request->user()->id);
         $number_order = $user->name.'-'.Str::random(5);
         $status = 'pending';

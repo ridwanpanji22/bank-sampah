@@ -45,8 +45,7 @@ class DriverController extends Controller
     public function inputTransaction(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
-            'date' => 'required|date',
-            'schedule_id' => 'required',
+            'date' => 'required',
             'type_trash' => 'required|array',
             'price' => 'required|array',
             'weight' => 'required|array',
@@ -82,6 +81,10 @@ class DriverController extends Controller
         // Update hold_balance
         $customer->update([
             'hold_balance' => $customer->hold_balance + $total_price
+        ]);
+
+        $schedule->update([
+            'status' => 'completed',
         ]);
 
         return response()->json([
