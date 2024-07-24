@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Http\Resources\ScheduleResource;
 
 class DashboardController extends Controller
 {
@@ -28,7 +29,7 @@ class DashboardController extends Controller
     public function createSchedule(Request $request)
     {
         $validated = Validator::make($request->all(), [
-            'pickup_date' => 'required',
+            'pickup_date' => 'required|date',
             'pickup_time' => 'required',
         ]);
 
@@ -36,10 +37,11 @@ class DashboardController extends Controller
             return response()->json($validated->errors());
         }
 
-        $schedules = Schedule::where('user_id', $request->user()->id)
+        $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)
                         ->where('pickup_date', $request->pickup_date)
-                        ->orWhere('user_id', $request->user()->id)
-                        ->where('created_at', 'like', $request->pickup_date.'%')
+                        ->orWhere('user_id_customer', auth('sanctum')->user()->id)
+                        ->where('status', 'pending')
+                        ->orWhere('status', 'on the way')
                         ->get();
 
         if (!$schedules->isEmpty()) {
@@ -55,7 +57,7 @@ class DashboardController extends Controller
         $status = 'pending';
 
         $schedule = Schedule::create([
-            'user_id' => $request->user()->id,
+            'user_id_customer' => $request->user()->id,
             'number_order' => $number_order,
             'pickup_date' => $request->pickup_date,
             'pickup_time' => $request->pickup_time,
@@ -68,5 +70,54 @@ class DashboardController extends Controller
             'data' => $schedule
         ]);
 
+    }
+
+    public function statusSchedule(Request $request)
+    {   
+        $schedule = Schedule::where('user_id_customer', $request->user()->id)
+                            ->where('status', 'pending')
+                            ->orWhere('status', 'on the way')
+                            ->get();
+        
+        $schedule->map(function($item) {
+            if ($item->status == 'on the way') {
+                $item->driver = User::find($item->user_id_driver)->name;
+                return $item;
+            }
+        });
+        
+        return response()->json([
+            'data' => $schedule
+        ]);
+    }
+
+    public function history()
+    {
+        $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)->get();
+
+        return response()->json([
+            'data' => $schedules
+        ]);
+    }
+
+    public function historyDetail($id)
+    {
+        $schedule = Schedule::where('id', $id)->where('user_id_customer', auth('sanctum')->user()->id)->get();
+
+        if ($schedule->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $schedule->map(function($item) {
+            if ($item->status !== 'pending') {
+                $item->driver = User::find($item->user_id_driver)->name;
+                return $item;
+            }
+        });
+        return response()->json([
+            'data' => $schedule
+        ]);
     }
 }

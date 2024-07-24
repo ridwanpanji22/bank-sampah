@@ -38,8 +38,12 @@ Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middlewar
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth:sanctum', 'role:customer']);
 Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'])->middleware(['auth:sanctum', 'role:customer']);
 Route::get('/dashboard/schedule/', [DashboardController::class, 'statusSchedule'])->middleware(['auth:sanctum', 'role:customer']);
+Route::get('/dashboard/schedule/history', [DashboardController::class, 'history'])->middleware(['auth:sanctum', 'role:customer']);
+Route::get('/dashboard/schedule/history/{id}', [DashboardController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:customer']);
 
 Route::get('/driver/schedules', [DriverController::class, 'index'])->middleware(['auth:sanctum', 'role:driver']);
+Route::get('/driver/schedules/history', [DriverController::class, 'history'])->middleware(['auth:sanctum', 'role:driver']);
+Route::get('/driver/schedules/history/{id}', [DriverController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/{id}', [DriverController::class, 'show'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/pickup/{id}', [DriverController::class, 'pickup'])->middleware(['auth:sanctum', 'role:driver']);
 Route::post('/driver/schedules/transaction/{id}/input', [DriverController::class, 'inputTransaction'])->middleware(['auth:sanctum', 'role:driver']);

@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id_driver')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id_customer')->constrained()->onDelete('cascade');
             $table->string('number_order');
             $table->string('pickup_date');
             $table->string('pickup_time');

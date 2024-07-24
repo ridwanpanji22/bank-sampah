@@ -15,6 +15,7 @@ class DriverController extends Controller
     {
         $schedules = Schedule::where('status', 'pending')->get();
         $schedules->load('user');
+
         return response()->json([
             'data' => $schedules
         ]);
@@ -22,22 +23,68 @@ class DriverController extends Controller
 
     public function show(Request $request, $id)
     {
-        $schedule = Schedule::find($id);
-        $schedule->load('user');
+        $schedule = Schedule::where('id', $id)->where('status', 'pending')->get();
+
+        $schedule->map(function($item) {
+            // $item->driver = User::find($item->user_id_driver)->name;
+            $item->customer = User::find($item->user_id_customer)->name;
+            return $item;
+        });
+        
         return response()->json([
             'data' => $schedule
         ]);
     }
 
-    public function pickup(Request $request, $id)
+    public function pickup(Request $request)
     {
-        $schedule = Schedule::find($id);
+        $schedule = Schedule::find($request->id);
+        $driver = auth('sanctum')->user()->id;
+
         $schedule->update([
-            'status' => 'on the way'
+            'status' => 'on the way',
+            'user_id_driver' => $driver
         ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Schedule updated successfully',
+            'data' => $schedule
+        ]);
+    }
+
+    public function history()
+    {
+        $schedules = Schedule::where('user_id_driver', auth('sanctum')->user()->id)->get();
+
+        if ($schedules->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        return response()->json([
+            'data' => $schedules
+        ]);
+    }
+
+    public function historyDetail($id)
+    {
+        $schedule = Schedule::where('id', $id)->where('user_id_driver', auth('sanctum')->user()->id)->get();
+
+        if ($schedule->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $schedule->map(function($item) {
+            $item->customer = User::find($item->user_id_customer)->name;
+            $item->driver = User::find($item->user_id_driver)->name;
+            return $item;
+        });
+
+        return response()->json([
             'data' => $schedule
         ]);
     }
@@ -63,9 +110,10 @@ class DriverController extends Controller
         
         $schedule = Schedule::find($id);
         
-        $driver = auth('sanctum')->user();
-        $customer = $schedule->user;
-        $users = [$driver->id, $customer->id];
+        $driver = auth('sanctum')->user()->id;
+        $customer = $schedule->user_id_customer;
+        $users = [$driver, $customer];
+        
         
         $transaction = Transaction::create([
             'date' => $request->date,
@@ -79,8 +127,9 @@ class DriverController extends Controller
         $transaction->users()->sync($users, true); 
 
         // Update hold_balance
-        $customer->update([
-            'hold_balance' => $customer->hold_balance + $total_price
+        $userCustomer = User::find($customer);
+        $userCustomer->update([
+            'hold_balance' => $userCustomer->hold_balance + $total_price
         ]);
 
         $schedule->update([
