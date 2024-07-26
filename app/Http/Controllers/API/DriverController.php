@@ -13,10 +13,17 @@ class DriverController extends Controller
 {
     public function index()
     {
+        $user = auth('sanctum')->user();
         $schedules = Schedule::where('status', 'pending')->get();
-        $schedules->load('user');
+
+        $schedules->map(function($item) {
+            $item->customer = User::find($item->user_id_customer)->name;
+            return $item;
+        });
 
         return response()->json([
+            'success' => true,
+            'user' => $user->name,
             'data' => $schedules
         ]);
     }
@@ -25,9 +32,15 @@ class DriverController extends Controller
     {
         $schedule = Schedule::where('id', $id)->where('status', 'pending')->get();
 
+        if ($schedule->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         $schedule->map(function($item) {
-            // $item->driver = User::find($item->user_id_driver)->name;
             $item->customer = User::find($item->user_id_customer)->name;
+            $item->address = User::find($item->user_id_customer)->address;
             return $item;
         });
         
@@ -39,6 +52,17 @@ class DriverController extends Controller
     public function pickup(Request $request)
     {
         $schedule = Schedule::find($request->id);
+
+        if ($schedule == null) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }elseif ($schedule->user_id_driver != null) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         $driver = auth('sanctum')->user()->id;
 
         $schedule->update([
@@ -55,16 +79,36 @@ class DriverController extends Controller
 
     public function history()
     {
-        $schedules = Schedule::where('user_id_driver', auth('sanctum')->user()->id)->get();
+        $user = auth('sanctum')->user();
+        $schedules = Schedule::where('user_id_driver', $user->id)->get();
 
-        if ($schedules->isEmpty()) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        $transactions = Transaction::whereHas('users', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
 
+        $formattedSchedules = $schedules->map(function($schedule) use ($transactions) {
+            $scheduleTransactions = $transactions->where('schedule_id', $schedule->id);
+            
+            $totalWeight = $scheduleTransactions->sum(function($transaction) {
+                $weights = json_decode($transaction->weight);
+                return array_sum($weights);
+            });
+    
+            return [
+                'id' => $schedule->id,
+                'user_id_driver' => $schedule->user_id_driver,
+                'user_id_customer' => $schedule->user_id_customer,
+                'number_order' => $schedule->number_order,
+                'pickup_date' => $schedule->pickup_date,
+                'pickup_time' => $schedule->pickup_time,
+                'status' => $schedule->status,
+                'total_weight' => $totalWeight,
+                'total_price' => $scheduleTransactions->sum('total_price'),
+            ];
+        });
+    
         return response()->json([
-            'data' => $schedules
+            'data' => $formattedSchedules
         ]);
     }
 
@@ -92,7 +136,7 @@ class DriverController extends Controller
     public function inputTransaction(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
-            'date' => 'required',
+            'date' => 'required|date',
             'type_trash' => 'required|array',
             'price' => 'required|array',
             'weight' => 'required|array',
@@ -108,7 +152,21 @@ class DriverController extends Controller
             $total_price += $request->price[$i] * $request->weight[$i];
         }
         
-        $schedule = Schedule::find($id);
+        $schedule = Schedule::where('id', $id)->where('user_id_driver', auth('sanctum')->user()->id)->get();
+        
+        if ($schedule->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $schedule = $schedule->first();
+        
+        if ($schedule->status != 'on the way') {
+            return response()->json([
+                'message' => 'Schedule not on the way'
+            ], 401);
+        }
         
         $driver = auth('sanctum')->user()->id;
         $customer = $schedule->user_id_customer;

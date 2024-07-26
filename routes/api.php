@@ -31,6 +31,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/admin/transactions', [AdminController::class, 'transactions'])->middleware(['auth:sanctum', 'role:admin']);
 Route::post('/admin/register', [AdminController::class, 'register'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/users', [AdminController::class, 'index'])->middleware(['auth:sanctum', 'role:admin']);
+Route::get('/admin/customers', [AdminController::class, 'customers'])->middleware(['auth:sanctum', 'role:admin']);
+Route::get('/admin/drivers', [AdminController::class, 'drivers'])->middleware(['auth:sanctum', 'role:admin']);
+Route::get('admin/users/transactions/{id}', [AdminController::class, 'userTransactions'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/users/{id}', [AdminController::class, 'show'])->middleware(['auth:sanctum', 'role:admin']);
 Route::delete('/admin/users/{id}', [AdminController::class, 'destroy'])->middleware(['auth:sanctum', 'role:admin']);
 Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middleware(['auth:sanctum', 'role:admin']);
@@ -46,4 +49,4 @@ Route::get('/driver/schedules/history', [DriverController::class, 'history'])->m
 Route::get('/driver/schedules/history/{id}', [DriverController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/{id}', [DriverController::class, 'show'])->middleware(['auth:sanctum', 'role:driver']);
 Route::get('/driver/schedules/pickup/{id}', [DriverController::class, 'pickup'])->middleware(['auth:sanctum', 'role:driver']);
-Route::post('/driver/schedules/transaction/{id}/input', [DriverController::class, 'inputTransaction'])->middleware(['auth:sanctum', 'role:driver']);
+Route::post('/driver/schedules/transaction/{id}', [DriverController::class, 'inputTransaction'])->middleware(['auth:sanctum', 'role:driver']);

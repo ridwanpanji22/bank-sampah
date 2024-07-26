@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Schedule;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Http\Resources\ScheduleResource;
@@ -14,15 +15,42 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        if (!$request->user()) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        $user = auth('sanctum')->user();
 
-        $user = $request->user();
+        $transactions = Transaction::whereHas('users', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with('users')->get();
+    
+        // Decode the JSON strings to arrays and calculate the total weight
+        $total_trash = 0;
+    
+        foreach ($transactions as $transaction) {
+            $weight = json_decode($transaction->weight, true);
+    
+            // Add the weights to the total weight
+            if (is_array($weight)) {
+                $total_trash += array_sum($weight);
+            }
+    
+            // Update the transaction with decoded values for better readability
+            $transaction->weight = $weight;
+        }
+    
         return response()->json([
-            'data' => $user
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold,
+                'withdrawable_balance' => $user->withdrawable_balance,
+                'hold_balance' => $user->hold_balance,
+                'role' => $user->roles->pluck('name')[0],
+                'total_trash' => $total_trash,
+            ]
         ]);
     }
 
@@ -37,6 +65,15 @@ class DashboardController extends Controller
             return response()->json($validated->errors());
         }
 
+        $date = date('Y-m-d', strtotime($request->pickup_date));
+
+        if ($date < date('Y-m-d')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pickup date cannot be in the past',
+            ], 400); // 400 Bad Request
+        }
+
         $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)
                         ->where('pickup_date', $request->pickup_date)
                         ->orWhere('user_id_customer', auth('sanctum')->user()->id)
@@ -47,8 +84,7 @@ class DashboardController extends Controller
         if (!$schedules->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'You can only create one schedule per day',
-                'data' => $schedules
+                'message' => 'You can only create one schedule per day'
             ], 409); // 409 Conflict
         }
 
@@ -76,15 +112,26 @@ class DashboardController extends Controller
     {   
         $schedule = Schedule::where('user_id_customer', $request->user()->id)
                             ->where('status', 'pending')
-                            ->orWhere('status', 'on the way')
+                            ->orWhere('user_id_customer', $request->user()->id)
+                            ->where('status', 'on the way')
                             ->get();
         
         $schedule->map(function($item) {
             if ($item->status == 'on the way') {
                 $item->driver = User::find($item->user_id_driver)->name;
-                return $item;
+            }else {
+                $item->driver = null;
             }
+            $item->customer = User::find($item->user_id_customer)->name;
+            $item->address = User::find($item->user_id_customer)->address;
+            return $item;
         });
+
+        if ($schedule->isEmpty()) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
         
         return response()->json([
             'data' => $schedule
@@ -93,10 +140,37 @@ class DashboardController extends Controller
 
     public function history()
     {
-        $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)->get();
-
+        $user = auth('sanctum')->user();
+        $schedules = Schedule::where('user_id_customer', $user->id)->get();
+        
+        // Filter transactions based on the currently authenticated user
+        $transactions = Transaction::whereHas('users', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
+        
+        $formattedSchedules = $schedules->map(function($schedule) use ($transactions) {
+            $scheduleTransactions = $transactions->where('schedule_id', $schedule->id);
+            
+            $totalWeight = $scheduleTransactions->sum(function($transaction) {
+                $weights = json_decode($transaction->weight);
+                return array_sum($weights);
+            });
+    
+            return [
+                'id' => $schedule->id,
+                'user_id_driver' => $schedule->user_id_driver,
+                'user_id_customer' => $schedule->user_id_customer,
+                'number_order' => $schedule->number_order,
+                'pickup_date' => $schedule->pickup_date,
+                'pickup_time' => $schedule->pickup_time,
+                'status' => $schedule->status,
+                'total_weight' => $totalWeight,
+                'total_price' => $scheduleTransactions->sum('total_price'),
+            ];
+        });
+    
         return response()->json([
-            'data' => $schedules
+            'data' => $formattedSchedules
         ]);
     }
 
@@ -113,9 +187,12 @@ class DashboardController extends Controller
         $schedule->map(function($item) {
             if ($item->status !== 'pending') {
                 $item->driver = User::find($item->user_id_driver)->name;
-                return $item;
+            }else {
+                $item->driver = null;
             }
+            return $item;
         });
+        
         return response()->json([
             'data' => $schedule
         ]);

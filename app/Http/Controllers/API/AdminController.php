@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Schedule;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -14,8 +15,12 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $users = User::all()->load('roles');
+        $admin = auth('sanctum')->user();
+        $users = User::get()->load('roles');
+
         return response()->json([
+            'success' => true,
+            'admin' => $admin->name,
             'data' => $users
         ]);
     }
@@ -140,6 +145,73 @@ class AdminController extends Controller
             'message' => 'User deleted successfully',
         ]);
     }
+
+    public function customers()
+    {
+        $users = User::whereHas('roles', function($query) {
+            $query->where('name', 'customer');
+        })->with('roles')->get();
+        
+        return response()->json([
+            'data' => $users
+        ]);
+    }
+    
+    public function drivers()
+    {
+        $users = User::whereHas('roles', function($query) {
+            $query->where('name', 'driver');
+        })->with('roles')->get();
+        
+        return response()->json([
+            'data' => $users
+        ]);
+    }
+
+    public function userTransactions($id)
+    {
+        $user = User::find($id);
+        $transactions = Transaction::whereHas('users', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with(['users.roles'])->get();
+    
+        $formattedTransactions = $transactions->map(function($transaction) {
+            $type_trash = json_decode($transaction->type_trash);
+            $price = json_decode($transaction->price);
+            $weight = json_decode($transaction->weight);
+    
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+    
+            $customer = $transaction->users->first(function($user) {
+                return $user->roles->contains('name', 'customer');
+            });
+    
+            $driver = $transaction->users->first(function($user) {
+                return $user->roles->contains('name', 'driver');
+            });
+    
+            return [
+                'id' => $transaction->id,
+                'date' => $transaction->date,
+                'schedule_id' => $transaction->schedule_id,
+                'trash' => $trash,
+                'customer_name' => $customer ? $customer->name : null,
+                'driver_name' => $driver ? $driver->name : null,
+            ];
+        });
+    
+        return response()->json([
+            'data' => $formattedTransactions
+        ]);
+    }
+
 
     public function transactions()
     {
