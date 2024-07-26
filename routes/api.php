@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DashboardController;
-use App\http\Controllers\API\AdminController;
+use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\DriverController;
 
 /*
