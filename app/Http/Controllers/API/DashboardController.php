@@ -74,11 +74,14 @@ class DashboardController extends Controller
             ], 400); // 400 Bad Request
         }
 
+        $user = auth('sanctum')->user();
+
         $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)
                         ->where('pickup_date', $request->pickup_date)
                         ->orWhere('user_id_customer', auth('sanctum')->user()->id)
                         ->where('status', 'pending')
-                        ->orWhere('status', 'on the way')
+                        ->orWhere('user_id_customer', auth('sanctum')->user()->id)
+                        ->where('status', 'on the way')
                         ->get();
 
         if (!$schedules->isEmpty()) {

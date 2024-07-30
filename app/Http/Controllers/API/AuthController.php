@@ -8,6 +8,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
 
 class AuthController extends Controller
 {
@@ -62,11 +66,11 @@ class AuthController extends Controller
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors());
         }
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -76,14 +80,18 @@ class AuthController extends Controller
             'ccm' => $request->ccm,
             'house_hold' => $request->house_hold,
         ]);
-
+    
         $user->assignRole('customer');
         $user->getRoleNames();
-
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
+        event(new Registered($user));
+    
         return response()->json([
             'success' => true,
-            'message' => 'User created successfully',
-            'data' => $user
+            'message' => 'User created successfully. Please check your email to verify your account.',
+            'data' => $user,
+            'access_token' => $token
         ]);
     }
 }

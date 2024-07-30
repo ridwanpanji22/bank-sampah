@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\DriverController;
+use Illuminate\Auth\Events\Verified;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,24 @@ use App\Http\Controllers\API\DriverController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Verification link sent!']);
+})->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+
+Route::get('/email/verify/{id}/{hash}', function (Request $request) {
+    $user = User::findOrFail($request->id);
+
+    if (!hash_equals((string) $request->hash, sha1($user->email))) {
+        return response()->json(['message' => 'Invalid verification link'], 400);
+    }
+
+    $user->markEmailAsVerified();
+
+    return response()->json(['message' => 'Email verified successfully']);
+})->middleware(['signed'])->name('verification.verify');
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

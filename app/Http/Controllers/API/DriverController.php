@@ -8,6 +8,8 @@ use App\Models\Schedule;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Mail\PickupNotification;
+use Illuminate\Support\Facades\Mail;
 
 class DriverController extends Controller
 {
@@ -65,10 +67,47 @@ class DriverController extends Controller
 
         $driver = auth('sanctum')->user()->id;
 
+        $customer = User::find($schedule->user_id_customer);
+
+        
         $schedule->update([
             'status' => 'on the way',
             'user_id_driver' => $driver
         ]);
+        $schedule->driver = User::find($driver)->name;
+
+        if ($customer) {
+            // Mengirim email ke customer
+            Mail::to($customer->email)->send(new PickupNotification($schedule));
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://whats.neumediradev.my.id/api/create-message',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'appkey' => '20a8dfae-7eaf-4d82-a35c-844264f60910',
+                    'authkey' => 'cMVBjuZPzmWrfxod7mHkdbeSlFNxMIxJqLOTUDcAcJyuka5yDo',
+                    'to' => '62'.$customer->phone,
+                    'message' => 'Your trash pickuped by '. $schedule->driver.' for order number '.$schedule->number_order.' is '.$schedule->status.'.',
+                    'sandbox' => 'false'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+        } else {
+            return response()->json([
+                'message' => 'Customer not found for the schedule'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -182,18 +221,55 @@ class DriverController extends Controller
             'total_price' => $total_price, // Tambahkan total_price di sini
         ]);
 
-        $transaction->users()->sync($users, true); 
-
+        $transaction->users()->sync($users, true);
+        
+        
         // Update hold_balance
         $userCustomer = User::find($customer);
+        
         $userCustomer->update([
             'hold_balance' => $userCustomer->hold_balance + $total_price
         ]);
 
+        
         $schedule->update([
             'status' => 'completed',
         ]);
+        
+        if ($userCustomer) {
+            // Mengirim email ke customer
+            $schedule->driver = User::find($driver)->name;
+            Mail::to($userCustomer->email)->send(new PickupNotification($schedule));
 
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://whats.neumediradev.my.id/api/create-message',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array(
+                    'appkey' => '20a8dfae-7eaf-4d82-a35c-844264f60910',
+                    'authkey' => 'cMVBjuZPzmWrfxod7mHkdbeSlFNxMIxJqLOTUDcAcJyuka5yDo',
+                    'to' => '62'.$userCustomer->phone,
+                    'message' => 'Your trash pickuped by '. $schedule->driver.' for order number '.$schedule->number_order.' is '.$schedule->status.'.',
+                    'sandbox' => 'false'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+        } else {
+            return response()->json([
+                'message' => 'Customer not found for the schedule'
+            ], 404);
+        
+        }
         return response()->json([
             'success' => true,
             'message' => 'Transaction created successfully',
