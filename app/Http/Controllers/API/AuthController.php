@@ -35,13 +35,22 @@ class AuthController extends Controller
         $user = User::where('email', $request['email'])->firstOrFail();
 
         $token = $user->createToken('auth_token')->plainTextToken;
-        $user->getRoleNames();
-      
 
         return response()->json([
             'success' => true,
             'message' => 'User logged in successfully',
-            'data' => $user ,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold,
+                'withdrawable_balance' => $user->withdrawable_balance,
+                'hold_balance' => $user->hold_balance,
+                'role' => $user->roles->first()->name,
+            ],
             'access_token' => $token,
         ]);
 
@@ -82,7 +91,6 @@ class AuthController extends Controller
         ]);
     
         $user->assignRole('customer');
-        $user->getRoleNames();
         $token = $user->createToken('auth_token')->plainTextToken;
     
         event(new Registered($user));
@@ -90,7 +98,18 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User created successfully. Please check your email to verify your account.',
-            'data' => $user,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold,
+                'withdrawable_balance' => $user->withdrawable_balance,
+                'hold_balance' => $user->hold_balance,
+                'role' => $user->roles->first()->name,
+            ],
             'access_token' => $token
         ]);
     }
