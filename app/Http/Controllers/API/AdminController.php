@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\Transaction;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
@@ -243,6 +244,52 @@ class AdminController extends Controller
 
         return response()->json([
             'data' => $formattedTransactions
+        ]);
+    }
+
+    public function createSale( Request $request )
+    {
+        $validate = Validator::make($request->all(), [
+            'date' => 'required|date',
+            'name' => 'required',
+            'type_trash' => 'required|array',
+            'price' => 'required|array',
+            'weight' => 'required|array',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validate->errors(),
+            ], 422);
+        }
+
+        $request->date = date('Y-m-d', strtotime($request->date));
+
+        $total_price = 0;
+        for ($i = 0; $i < count($request->type_trash); $i++) {
+            $total_price += $request->price[$i] * $request->weight[$i];
+        }
+
+        $total_weight = 0;
+        for ($i = 0; $i < count($request->weight); $i++) {
+            $total_weight += $request->weight[$i];
+        }
+
+        $sale = Sale::create([
+            'date' => $request->date,
+            'name' => $request->name,
+            'type_trash' => json_encode($request->type_trash),
+            'price' => json_encode($request->price),
+            'weight' => json_encode($request->weight),
+            'total_price' => $total_price,
+            'total_weight' => $total_weight,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sale created successfully',
+            'data' => $sale
         ]);
     }
 }

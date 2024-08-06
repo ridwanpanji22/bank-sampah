@@ -185,6 +185,8 @@ class DriverController extends Controller
             return response()->json($validate->errors(), 422);
         }
 
+        $request->date = date('Y-m-d', strtotime($request->date));
+
         // Calculate total price
         $total_price = 0;
         for ($i = 0; $i < count($request->type_trash); $i++) {

@@ -49,6 +49,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/admin/transactions', [AdminController::class, 'transactions'])->middleware(['auth:sanctum', 'role:admin']);
+Route::post('/admin/sales/create', [AdminController::class, 'createSale'])->middleware(['auth:sanctum', 'role:admin']);
 Route::post('/admin/register', [AdminController::class, 'register'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/users', [AdminController::class, 'index'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/customers', [AdminController::class, 'customers'])->middleware(['auth:sanctum', 'role:admin']);

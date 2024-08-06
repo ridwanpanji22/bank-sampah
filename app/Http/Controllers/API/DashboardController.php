@@ -62,7 +62,10 @@ class DashboardController extends Controller
         ]);
 
         if ($validated->fails()) {
-            return response()->json($validated->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validated->errors(),
+            ], 422);
         }
 
         $date = date('Y-m-d', strtotime($request->pickup_date));
