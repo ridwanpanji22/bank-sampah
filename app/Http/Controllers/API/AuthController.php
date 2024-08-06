@@ -23,7 +23,10 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ], 401);
         }
 
         if (!Auth::attempt($request->only('email', 'password'))) {
@@ -77,7 +80,10 @@ class AuthController extends Controller
         ]);
     
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ], 401);
         }
     
         $user = User::create([

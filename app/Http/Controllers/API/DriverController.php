@@ -92,7 +92,7 @@ class DriverController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => array(
-                    'appkey' => '20a8dfae-7eaf-4d82-a35c-844264f60910',
+                    'appkey' => 'dfe62aed-5c96-475e-804d-61d2024dc699',
                     'authkey' => 'cMVBjuZPzmWrfxod7mHkdbeSlFNxMIxJqLOTUDcAcJyuka5yDo',
                     'to' => '62'.$customer->phone,
                     'message' => 'Your trash pickuped by '. $schedule->driver.' for order number '.$schedule->number_order.' is '.$schedule->status.'.',
@@ -253,7 +253,7 @@ class DriverController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => array(
-                    'appkey' => '20a8dfae-7eaf-4d82-a35c-844264f60910',
+                    'appkey' => 'dfe62aed-5c96-475e-804d-61d2024dc699',
                     'authkey' => 'cMVBjuZPzmWrfxod7mHkdbeSlFNxMIxJqLOTUDcAcJyuka5yDo',
                     'to' => '62'.$userCustomer->phone,
                     'message' => 'Your trash pickuped by '. $schedule->driver.' for order number '.$schedule->number_order.' is '.$schedule->status.'.',
