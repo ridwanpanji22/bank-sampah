@@ -25,7 +25,13 @@ class DriverController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => $user->name,
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'role' => $user->roles->pluck('name')[0],
+            ],
             'data' => $schedules
         ]);
     }
