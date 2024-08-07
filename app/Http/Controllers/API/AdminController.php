@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Schedule;
 use App\Models\Transaction;
 use App\Models\Sale;
+use App\Models\Trash;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
@@ -290,6 +291,230 @@ class AdminController extends Controller
             'success' => true,
             'message' => 'Sale created successfully',
             'data' => $sale
+        ]);
+    }
+
+    public function sales()
+    {
+        $sales = Sale::all();
+
+        $formattedSales = $sales->map(function($sale) {
+            $type_trash = json_decode($sale->type_trash);
+            $price = json_decode($sale->price);
+            $weight = json_decode($sale->weight);
+
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $sale->id,
+                'date' => $sale->date,
+                'name' => $sale->name,
+                'trash' => $trash,
+                'total_price' => $sale->total_price,
+                'total_weight' => $sale->total_weight,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales retrieved successfully',
+            'data' => $formattedSales
+        ]);
+    }
+
+    public function salesDetail($id)
+    {
+        $sale = Sale::find($id);
+
+        if (is_null($sale)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sale not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sale retrieved successfully',
+            'data' => $sale
+        ]);
+    }
+
+    public function salesUpdate(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'type_trash' => 'required|array',
+            'price' => 'required|array',
+            'weight' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors(),
+            ], 422);
+        }
+
+        $sale = Sale::find($id);
+        
+        if (is_null($sale)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sale not found',
+            ], 401);
+        }
+
+        $total_price = 0;
+        for ($i = 0; $i < count($request->type_trash); $i++) {
+            $total_price += $request->price[$i] * $request->weight[$i];
+        }
+
+        $total_weight = 0;
+        for ($i = 0; $i < count($request->weight); $i++) {
+            $total_weight += $request->weight[$i];
+        }
+
+        $sale->update([
+            'name' => $request->name,
+            'type_trash' => json_encode($request->type_trash),
+            'price' => json_encode($request->price),
+            'weight' => json_encode($request->weight),
+            'total_price' => $total_price,
+            'total_weight' => $total_weight,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sale updated successfully',
+            'data' => $sale
+        ]);
+    }
+
+    public function salesDelete($id)
+    {
+        $sale = Sale::find($id);
+
+        if (is_null($sale)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sale not found',
+            ], 404);
+        }
+
+        $sale->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sale deleted successfully',
+        ]);
+    }
+
+    public function createTrash( Request $request )
+    {
+        $validate = Validator::make($request->all(), [
+            'name' => 'required',
+            'price' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validate->errors(),
+            ], 422);
+        }
+
+        $trash = Trash::create([
+            'name' => $request->name,
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash created successfully',
+            'data' => $trash
+        ]);
+    }
+
+    public function trash()
+    {
+        $trash = Trash::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash retrieved successfully',
+            'data' => $trash
+        ]);
+    }
+
+    public function trashDetail($id)
+    {
+        $trash = Trash::find($id);
+
+        if (is_null($trash)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trash not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash retrieved successfully',
+            'data' => $trash
+        ]);
+    }
+
+    public function updateTrash( Request $request, $id )
+    {
+        $validate = Validator::make($request->all(), [
+            'name' => 'required',
+            'price' => 'required',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validate->errors(),
+            ], 422);
+        }
+
+        $trash = Trash::find($id);
+        $trash->update([
+            'name' => $request->name,
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash updated successfully',
+            'data' => $trash
+        ]);
+    }
+
+    public function deleteTrash($id)
+    {
+        $trash = Trash::find($id);
+
+        if (!$trash) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trash not found',
+            ], 404);
+        }
+
+        $trash->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash deleted successfully',
         ]);
     }
 }
