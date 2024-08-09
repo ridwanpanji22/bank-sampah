@@ -79,34 +79,19 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Pickup date cannot be in the past',
-            ], 400); // 400 Bad Request
-        }
-
-        $user = auth('sanctum')->user();
-
-        $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)
-                        ->where('pickup_date', $request->pickup_date)
-                        ->orWhere('user_id_customer', auth('sanctum')->user()->id)
-                        ->where('status', 'pending')
-                        ->orWhere('user_id_customer', auth('sanctum')->user()->id)
-                        ->where('status', 'on the way')
-                        ->get();
-
-        if (!$schedules->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You can only create one schedule per day'
-            ], 409); // 409 Conflict
+            ], 401); // 401 Unauthorized
         }
 
         $user = User::find($request->user()->id);
-        $number_order = $user->name.'-'.Str::random(5);
+        $name_explode = explode(' ', $user->name);
+        $first_name = $name_explode[0];
+        $number_order = $first_name.'-'.Str::random(5);
         $status = 'pending';
 
         $schedule = Schedule::create([
             'user_id_customer' => $request->user()->id,
             'number_order' => $number_order,
-            'pickup_date' => $request->pickup_date,
+            'pickup_date' => $date,
             'pickup_time' => $request->pickup_time,
             'status' => $status
         ]);
@@ -119,46 +104,44 @@ class DashboardController extends Controller
 
     }
 
-    public function statusSchedule(Request $request)
-    {   
-        $schedule = Schedule::where('user_id_customer', $request->user()->id)
-                            ->where('status', 'pending')
-                            ->orWhere('user_id_customer', $request->user()->id)
-                            ->where('status', 'on the way')
-                            ->get();
-        
-        $schedule->map(function($item) {
-            if ($item->status == 'on the way') {
-                $item->driver = User::find($item->user_id_driver)->name;
-            }else {
-                $item->driver = null;
-            }
-            $item->customer = User::find($item->user_id_customer)->name;
-            $item->address = User::find($item->user_id_customer)->address;
-            return $item;
-        });
+    public function createScheduleOneClick(Request $request)
+    {
+        $date = date('Y-m-d');
+        $time = date('H:i:s');
 
-        if ($schedule->isEmpty()) {
+        $schedules = Schedule::where('user_id_customer', auth('sanctum')->user()->id)
+                        ->where('pickup_date', $date)
+                        ->get();
+
+        if (!$schedules->isEmpty()) {
             return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+                'success' => false,
+                'message' => 'You have already created a schedule for today, please create on schedule pickup date'
+            ], 409); // 409 Conflict
         }
 
-        function checkAndReplaceNull($value) {
-            return $value === null ? 'belum ada data' : $value;
-        }
-        
+        $user = User::find($request->user()->id);
+        $name_explode = explode(' ', $user->name);
+        $first_name = $name_explode[0];
+        $number_order = $first_name.'-'.Str::random(5);
+        $status = 'pending';
+
+        $schedule = Schedule::create([
+            'user_id_customer' => $request->user()->id,
+            'number_order' => $number_order,
+            'pickup_date' => $date,
+            'pickup_time' => $time,
+            'status' => $status
+        ]);
+
         return response()->json([
             'success' => true,
+            'message' => 'Schedule created successfully',
             'data' => [
-                'id' => $schedule[0]->id,
-                'number_order' => $schedule[0]->number_order,
-                'pickup_date' => $schedule[0]->pickup_date,
-                'pickup_time' => $schedule[0]->pickup_time,
-                'status' => $schedule[0]->status,
-                'driver' => checkAndReplaceNull($schedule[0]->driver),
-                'customer' => checkAndReplaceNull($schedule[0]->customer),
-                'address' => checkAndReplaceNull($schedule[0]->address),
+                'name' => $user->name,
+                'number_order' => $number_order,
+                'address' => $user->address,
+                'status' => $status
             ]
         ]);
     }

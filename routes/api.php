@@ -70,7 +70,8 @@ Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middlewar
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth:sanctum', 'role:customer']);
 Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'])->middleware(['auth:sanctum', 'role:customer']);
-Route::get('/dashboard/schedule/', [DashboardController::class, 'statusSchedule'])->middleware(['auth:sanctum', 'role:customer']);
+// Route::get('/dashboard/schedule/', [DashboardController::class, 'statusSchedule'])->middleware(['auth:sanctum', 'role:customer']);
+Route::get('/dashboard/schedule/', [DashboardController::class, 'createScheduleOneClick'])->middleware(['auth:sanctum', 'role:customer']);
 Route::get('/dashboard/schedule/history', [DashboardController::class, 'history'])->middleware(['auth:sanctum', 'role:customer']);
 Route::get('/dashboard/schedule/history/{id}', [DashboardController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:customer']);
 
