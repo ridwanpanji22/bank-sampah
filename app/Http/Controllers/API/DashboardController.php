@@ -35,20 +35,25 @@ class DashboardController extends Controller
             // Update the transaction with decoded values for better readability
             $transaction->weight = $weight;
         }
+
+        // Function to check and replace null values
+        function checkAndReplaceNull($value) {
+            return $value === null ? 'belum ada data' : $value;
+        }
     
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'address' => $user->address,
-                'phone' => $user->phone,
-                'ccm' => $user->ccm,
-                'house_hold' => $user->house_hold,
-                'withdrawable_balance' => $user->withdrawable_balance,
-                'hold_balance' => $user->hold_balance,
-                'role' => $user->roles->pluck('name')[0],
+                'name' => checkAndReplaceNull($user->name),
+                'email' => checkAndReplaceNull($user->email),
+                'address' => checkAndReplaceNull($user->address),
+                'phone' => checkAndReplaceNull($user->phone),
+                'ccm' => checkAndReplaceNull($user->ccm),
+                'house_hold' => checkAndReplaceNull($user->house_hold),
+                'withdrawable_balance' => checkAndReplaceNull($user->withdrawable_balance),
+                'hold_balance' => checkAndReplaceNull($user->hold_balance),
+                'role' => $user->roles->isNotEmpty() ? $user->roles->pluck('name')[0] : 'belum ada data',
                 'total_trash' => $total_trash,
             ]
         ]);
@@ -138,9 +143,23 @@ class DashboardController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
+
+        function checkAndReplaceNull($value) {
+            return $value === null ? 'belum ada data' : $value;
+        }
         
         return response()->json([
-            'data' => $schedule
+            'success' => true,
+            'data' => [
+                'id' => $schedule[0]->id,
+                'number_order' => $schedule[0]->number_order,
+                'pickup_date' => $schedule[0]->pickup_date,
+                'pickup_time' => $schedule[0]->pickup_time,
+                'status' => $schedule[0]->status,
+                'driver' => checkAndReplaceNull($schedule[0]->driver),
+                'customer' => checkAndReplaceNull($schedule[0]->customer),
+                'address' => checkAndReplaceNull($schedule[0]->address),
+            ]
         ]);
     }
 
