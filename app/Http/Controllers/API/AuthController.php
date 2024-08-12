@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -73,6 +75,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'ktp' => 'required|string|unique:users',
             'password' => 'required|string|min:8',
             'confirm_password' => 'required|same:password',
             'address' => 'required|string|max:255',
@@ -83,23 +86,23 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $validator->errors(),
-            ], 401);
+            ], 422);
         }
-    
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'ktp' => $request->ktp,
             'password' => Hash::make($request->password),
             'address' => $request->address,
             'phone' => $request->phone,
-            'ccm' => $request->ccm,
-            'house_hold' => $request->house_hold,
+            'ccm' => Str::random(6),
         ]);
     
         $user->assignRole('customer');
         $token = $user->createToken('auth_token')->plainTextToken;
     
-        event(new Registered($user));
+        //event(new Registered($user));
     
         return response()->json([
             'success' => true,

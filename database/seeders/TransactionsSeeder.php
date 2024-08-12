@@ -25,7 +25,7 @@ class TransactionsSeeder extends Seeder
 
             foreach ($type_trash as $trash) {
                 $price[] = $faker->numberBetween(1000, 5000);
-                $weight[] = $faker->numberBetween(1, 20);
+                $weight[] = $faker->numberBetween(500, 1500);
             }
 
             $transaction = Transaction::create([

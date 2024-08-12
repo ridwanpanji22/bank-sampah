@@ -27,15 +27,17 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Verification link sent!']);
 })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
 
+Route::post('/admin/email/verification', [AdminController::class, 'sendVerificationEmail'])->middleware(['auth:sanctum', 'role:admin']);
+
 Route::get('/email/verify/{id}/{hash}', function (Request $request) {
     $user = User::findOrFail($request->id);
-
+    
     if (!hash_equals((string) $request->hash, sha1($user->email))) {
         return response()->json(['message' => 'Invalid verification link'], 400);
     }
-
+    
     $user->markEmailAsVerified();
-
+    
     return response()->json(['message' => 'Email verified successfully']);
 })->middleware(['signed'])->name('verification.verify');
 
@@ -49,6 +51,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/admin/transactions', [AdminController::class, 'transactions'])->middleware(['auth:sanctum', 'role:admin']);
+Route::post('/admin/transactionsReports', [AdminController::class, 'transactionsReports'])->middleware(['auth:sanctum', 'role:admin']);
+Route::post('/admin/salesReports', [AdminController::class, 'salesReports'])->middleware(['auth:sanctum', 'role:admin']);
 Route::post('/admin/trash/create', [AdminController::class, 'createTrash'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/trash', [AdminController::class, 'trash'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/admin/sales', [AdminController::class, 'sales'])->middleware(['auth:sanctum', 'role:admin']);

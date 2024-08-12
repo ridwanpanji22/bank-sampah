@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('ktp')->unique();
             $table->string('password');
             $table->string('address');
             $table->string('phone');
-            $table->string('ccm')->nullable();
+            $table->string('ccm')->unique()->nullable();
             $table->string('house_hold')->nullable();
             $table->string('withdrawable_balance')->nullable();
             $table->string('hold_balance')->nullable();

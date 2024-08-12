@@ -23,8 +23,8 @@ class SaleSeeder extends Seeder
             $total_weight = 0;
 
             foreach ($type_trash as $trash) {
-                $price[] = $faker->numberBetween(1000, 5000);
-                $weight[] = $faker->numberBetween(1, 20);
+                $price[] = $faker->numberBetween(3000, 10000);
+                $weight[] = $faker->numberBetween(1000, 5000);
                 $total_weight += end($weight);
             }
 

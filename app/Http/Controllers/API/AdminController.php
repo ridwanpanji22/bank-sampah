@@ -12,6 +12,10 @@ use App\Models\Trash;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmail;
+use Illuminate\Support\Facades\URL;
 
 class AdminController extends Controller
 {
@@ -24,6 +28,30 @@ class AdminController extends Controller
             'success' => true,
             'admin' => $admin->name,
             'data' => $users
+        ]);
+    }
+
+    public function sendVerificationEmail(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email already verified'
+            ]);
+        }
+        $user->sendEmailVerificationNotification();
+        // event(new Registered($user));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification link sent!'
         ]);
     }
     public function register(Request $request)
@@ -515,6 +543,280 @@ class AdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Trash deleted successfully',
+        ]);
+    }
+
+    public function salesReports(Request $request)
+    {
+        $start_date = $request->has('start_date') ? date('Y-m-d', strtotime($request->start_date)) : null;
+        $end_date = $request->has('end_date') ? date('Y-m-d', strtotime($request->end_date)) : null;
+        
+        if ($start_date && $end_date) {
+            $validate = Validator::make($request->all(), [
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereBetween('date', [$start_date, $end_date])->get();
+            $transactions = Transaction::whereBetween('date', [$start_date, $end_date])->get();
+
+        } elseif ($start_date) {
+            $validate = Validator::make($request->all(), [
+                'start_date' => 'required|date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereDate('date', $start_date)->get();
+            $transactions = Transaction::whereDate('date', $start_date)->get();
+
+        } elseif ($end_date) {
+            $validate = Validator::make($request->all(), [
+                'end_date' => 'required|date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereDate('date', $end_date)->get();
+            $transactions = Transaction::whereDate('date', $end_date)->get();
+
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a valid date range or month and year.'
+            ], 400);
+        }
+
+        
+        $formattedSales = $sales->map(function($sale) {
+            $type_trash = json_decode($sale->type_trash);
+            $price = json_decode($sale->price);
+            $weight = json_decode($sale->weight);
+            
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $sale->id,
+                'date' => $sale->date,
+                'name' => $sale->name,
+                'trash' => $trash,
+                'total_price' => 'Rp.' . number_format($sale->total_price, 0, ',', '.'),
+                'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
+            ];
+        });
+        
+        $formattedTransactions = $transactions->map(function($transaction) {
+            $type_trash = json_decode($transaction->type_trash);
+            $price = json_decode($transaction->price);
+            $weight = json_decode($transaction->weight);
+
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $transaction->id,
+                'date' => $transaction->date,
+                'trash' => $trash,
+                'total_price' => 'Rp.' . number_format($transaction->total_price, 0, ',', '.'),
+                'total_weight' => array_sum($weight),
+            ];
+        });
+        
+        // Total income and weight from sales
+        $total_sales_income = $sales->sum('total_price');
+        $total_sales_weight = $sales->sum('total_weight');
+        
+        // Total cost and weight from transactions
+        $total_transaction_cost = $transactions->sum('total_price');
+        $total_transaction_weight = $formattedTransactions->sum('total_weight');
+        
+        // Profit or Loss calculation
+        $profit_or_loss = $total_sales_income - $total_transaction_cost;
+        
+        // Adjusting profit/loss by weight ratio if needed
+        if ($total_transaction_weight > 0) {
+            $weight_ratio = $total_sales_weight / $total_transaction_weight;
+            $profit_or_loss *= $weight_ratio;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales and transactions retrieved successfully',
+            'data' => [
+                'sales' => $formattedSales,
+                'profit_or_loss' => 'Rp.' . number_format($profit_or_loss, 0, ',', '.'),
+                'total_sales_income' => 'Rp.' . number_format($total_sales_income, 0, ',', '.'),
+                'total_sales_weight' => number_format($total_sales_weight, 0, ',', '.') . ' kg',
+                'total_transaction_cost' => 'Rp.' . number_format($total_transaction_cost, 0, ',', '.'),
+                'total_transaction_weight' => number_format($total_transaction_weight, 0, ',', '.') . ' kg'
+                ]
+        ]);
+    }
+
+    public function transactionsReports( Request $request )
+    {
+        $start_date = $request->has('start_date') ? date('Y-m-d', strtotime($request->start_date)) : null;
+        $end_date = $request->has('end_date') ? date('Y-m-d', strtotime($request->end_date)) : null;
+        
+        if ($start_date && $end_date) {
+            $validate = Validator::make($request->all(), [
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereBetween('date', [$start_date, $end_date])->get();
+            $transactions = Transaction::whereBetween('date', [$start_date, $end_date])->get();
+
+        } elseif ($start_date) {
+            $validate = Validator::make($request->all(), [
+                'start_date' => 'required|date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereDate('date', $start_date)->get();
+            $transactions = Transaction::whereDate('date', $start_date)->get();
+
+        } elseif ($end_date) {
+            $validate = Validator::make($request->all(), [
+                'end_date' => 'required|date',
+            ]);
+
+            if ($validate->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validate->errors(),
+                ], 422);
+            }
+
+            $sales = Sale::whereDate('date', $end_date)->get();
+            $transactions = Transaction::whereDate('date', $end_date)->get();
+
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a valid date range or month and year.'
+            ], 400);
+        }
+
+        
+        $formattedSales = $sales->map(function($sale) {
+            $type_trash = json_decode($sale->type_trash);
+            $price = json_decode($sale->price);
+            $weight = json_decode($sale->weight);
+            
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $sale->id,
+                'date' => $sale->date,
+                'name' => $sale->name,
+                'trash' => $trash,
+                'total_price' => 'Rp.' . number_format($sale->total_price, 0, ',', '.'),
+                'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
+            ];
+        });
+        
+        $formattedTransactions = $transactions->map(function($transaction) {
+            $type_trash = json_decode($transaction->type_trash);
+            $price = json_decode($transaction->price);
+            $weight = json_decode($transaction->weight);
+
+            $trash = [];
+            for ($i = 0; $i < count($type_trash); $i++) {
+                $trash[] = [
+                    'type_trash' => $type_trash[$i],
+                    'price' => $price[$i],
+                    'weight' => $weight[$i],
+                ];
+            }
+
+            return [
+                'id' => $transaction->id,
+                'date' => $transaction->date,
+                'trash' => $trash,
+                'total_price' => 'Rp.' . number_format($transaction->total_price, 0, ',', '.'),
+                'total_weight' => array_sum($weight),
+            ];
+        });
+        
+        // Total income and weight from sales
+        $total_sales_income = $sales->sum('total_price');
+        $total_sales_weight = $sales->sum('total_weight');
+        
+        // Total cost and weight from transactions
+        $total_transaction_cost = $transactions->sum('total_price');
+        $total_transaction_weight = $formattedTransactions->sum('total_weight');
+        
+        // Profit or Loss calculation
+        $profit_or_loss = $total_sales_income - $total_transaction_cost;
+        
+        // Adjusting profit/loss by weight ratio if needed
+        if ($total_transaction_weight > 0) {
+            $weight_ratio = $total_sales_weight / $total_transaction_weight;
+            $profit_or_loss *= $weight_ratio;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sales and transactions retrieved successfully',
+            'data' => [
+                'transactions' => $formattedTransactions,
+                'profit_or_loss' => 'Rp.' . number_format($profit_or_loss, 0, ',', '.'),
+                'total_sales_income' => 'Rp.' . number_format($total_sales_income, 0, ',', '.'),
+                'total_sales_weight' => number_format($total_sales_weight, 0, ',', '.') . ' kg',
+                'total_transaction_cost' => 'Rp.' . number_format($total_transaction_cost, 0, ',', '.'),
+                'total_transaction_weight' => number_format($total_transaction_weight, 0, ',', '.') . ' kg'
+                ]
         ]);
     }
 }

@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             $customer = User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
+                'ktp' => $faker->regexify('[A-Za-z0-9]{16}'),
                 'password' => bcrypt('12345678'), // Default password for simplicity
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
@@ -35,6 +36,7 @@ class UserSeeder extends Seeder
             $driver = User::create([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
+                'ktp' => $faker->regexify('[A-Za-z0-9]{16}'),
                 'password' => bcrypt('12345678'), // Default password for simplicity
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
