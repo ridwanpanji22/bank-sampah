@@ -20,6 +20,7 @@ class DriverController extends Controller
 
         $schedules->map(function($item) {
             $item->customer = User::find($item->user_id_customer)->name;
+            $item->address = User::find($item->user_id_customer)->address;
             return $item;
         });
 
