@@ -57,3 +57,12 @@ jobs:
 
     - name: Run the tests
       run: php artisan test
+
+    - name: Deploy to Server via SSH
+      if: github.ref == 'refs/heads/main'
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+      run: |
+        ssh -i $SSH_PRIVATE_KEY $REMOTE_USER@$REMOTE_HOST "cd /home/stmik-banksampah.neumediradev.my.id/public_html/API && git pull origin main && composer install --no-dev && php artisan migrate:fresh --seed && php artisan cache:clear"
