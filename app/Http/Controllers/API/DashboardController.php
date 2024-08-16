@@ -191,15 +191,6 @@ class DashboardController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
-
-        $schedule->map(function($item) {
-            if ($item->status !== 'pending') {
-                $item->driver = User::find($item->user_id_driver)->name;
-            }else {
-                $item->driver = null;
-            }
-            return $item;
-        });
         
         return response()->json([
             'data' => $schedule

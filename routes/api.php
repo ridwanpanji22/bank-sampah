@@ -74,7 +74,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum', 'role:admin'
 });
 
 // Auth Routes
-Route::group(['prefix' => 'auth'], function () {
+Route::group(['prefix' => '/'], function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.change');
     Route::post('/login', [AuthController::class, 'login']);
@@ -87,7 +87,7 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:sanctum', 'role:customer']], function () {
     Route::get('/', [DashboardController::class, 'index']);
     Route::post('/schedule', [DashboardController::class, 'createSchedule']);
-    Route::get('/schedule/', [DashboardController::class, 'createScheduleOneClick']);
+    Route::get('/schedule', [DashboardController::class, 'createScheduleOneClick']);
     Route::get('/schedule/history', [DashboardController::class, 'history']);
     Route::get('/schedule/history/{id}', [DashboardController::class, 'historyDetail']);
 });
@@ -99,7 +99,6 @@ Route::group(['prefix' => 'driver', 'middleware' => ['auth:sanctum', 'role:drive
     Route::get('/schedules/history', [DriverController::class, 'history']);
     Route::get('/schedules/history/{id}', [DriverController::class, 'historyDetail']);
     Route::get('/schedules/{id}', [DriverController::class, 'show']);
-    Route::get('/schedules/pickup/{id}', [DriverController::class, 'pickup']);
     Route::post('/schedules/transaction/{id}', [DriverController::class, 'inputTransaction']);
-    Route::get('autoCreateSchedule/{ccm}', [DriverController::class, 'autoCreateSchedule']);
+    Route::get('/autoCreateSchedule/{ccm}', [DriverController::class, 'autoCreateSchedule']);
 });
