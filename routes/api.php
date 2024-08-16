@@ -22,71 +22,84 @@ use Illuminate\Auth\Events\Verified;
 |
 */
 
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
+// Email Verification Routes
+Route::group(['prefix' => 'email'], function () {
+    Route::post('/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification link sent!']);
+    })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
 
-    return response()->json(['message' => 'Verification link sent!']);
-})->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+    Route::get('/verify/{id}/{hash}', function (Request $request) {
+        $user = User::findOrFail($request->id);
 
-Route::post('/admin/email/verification', [AdminController::class, 'sendVerificationEmail'])->middleware(['auth:sanctum', 'role:admin']);
+        if (!hash_equals((string) $request->hash, sha1($user->email))) {
+            return response()->json(['message' => 'Invalid verification link'], 400);
+        }
 
-Route::get('/email/verify/{id}/{hash}', function (Request $request) {
-    $user = User::findOrFail($request->id);
-    
-    if (!hash_equals((string) $request->hash, sha1($user->email))) {
-        return response()->json(['message' => 'Invalid verification link'], 400);
-    }
-    
-    $user->markEmailAsVerified();
-    
-    return response()->json(['message' => 'Email verified successfully']);
-})->middleware(['signed'])->name('verification.verify');
+        $user->markEmailAsVerified();
+        return response()->json(['message' => 'Email verified successfully']);
+    })->middleware(['signed'])->name('verification.verify');
+});
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    //     return $request->user();
-    // });
-    
+// Admin Routes
+Route::group(['prefix' => 'admin', 'middleware' => ['auth:sanctum', 'role:admin']], function () {
+    Route::post('/email/verification', [AdminController::class, 'sendVerificationEmail']);
+
+    Route::get('/transactions', [AdminController::class, 'transactions']);
+    Route::post('/transactionsReports', [AdminController::class, 'transactionsReports']);
+    Route::post('/salesReports', [AdminController::class, 'salesReports']);
+
+    Route::get('/trash', [AdminController::class, 'trash']);
+    Route::post('/trash/create', [AdminController::class, 'createTrash']);
+    Route::get('/trash/{id}', [AdminController::class, 'trashDetail']);
+    Route::post('/trash/update/{id}', [AdminController::class, 'updateTrash']);
+    Route::delete('/trash/{id}', [AdminController::class, 'deleteTrash']);
+
+    Route::get('/sales', [AdminController::class, 'sales']);
+    Route::post('/sales/create', [AdminController::class, 'createSale']);
+    Route::get('/sales/{id}', [AdminController::class, 'salesDetail']);
+    Route::post('/sales/update/{id}', [AdminController::class, 'salesUpdate']);
+    Route::delete('/sales/{id}', [AdminController::class, 'salesDelete']);
+
+    Route::post('/register', [AdminController::class, 'register']);
+    Route::get('/users', [AdminController::class, 'index']);
+    Route::get('/users/{id}', [AdminController::class, 'show']);
+    Route::patch('/users/{id}', [AdminController::class, 'update']);
+    Route::delete('/users/{id}', [AdminController::class, 'destroy']);
+    Route::get('/customers', [AdminController::class, 'customers']);
+    Route::get('/drivers', [AdminController::class, 'drivers']);
+    Route::get('users/transactions/{id}', [AdminController::class, 'userTransactions']);
+
+    Route::get('/qrcode-generate/{ccm}', [QRcodeGenerateController::class, 'qrcode']);
+});
+
+// Auth Routes
+Route::group(['prefix' => 'auth'], function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.change');
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/cek_user', [AuthController::class, 'cek_user']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-    
-    Route::get('/qrcode-generate/{ccm}', [QRcodeGenerateController::class,'qrcode']); //->middleware('auth:sanctum', 'role:admin');
-    Route::get('/admin/transactions', [AdminController::class, 'transactions'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/transactionsReports', [AdminController::class, 'transactionsReports'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/salesReports', [AdminController::class, 'salesReports'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/trash/create', [AdminController::class, 'createTrash'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/trash', [AdminController::class, 'trash'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/sales', [AdminController::class, 'sales'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/sales/create', [AdminController::class, 'createSale'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/register', [AdminController::class, 'register'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/users', [AdminController::class, 'index'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/customers', [AdminController::class, 'customers'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/drivers', [AdminController::class, 'drivers'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('admin/users/transactions/{id}', [AdminController::class, 'userTransactions'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/trash/{id}', [AdminController::class, 'trashDetail'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/trash/update/{id}', [AdminController::class, 'updateTrash'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::delete('/admin/trash/{id}', [AdminController::class, 'deleteTrash'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('admin/sales/{id}', [AdminController::class, 'salesDetail'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::delete('admin/sales/{id}', [AdminController::class, 'salesDelete'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::post('/admin/sales/update/{id}', [AdminController::class, 'salesUpdate'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::get('/admin/users/{id}', [AdminController::class, 'show'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::delete('/admin/users/{id}', [AdminController::class, 'destroy'])->middleware(['auth:sanctum', 'role:admin']);
-    Route::patch('/admin/users/{id}', [AdminController::class, 'update'])->middleware(['auth:sanctum', 'role:admin']);
-    
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth:sanctum', 'role:customer']);
-    Route::post('/dashboard/schedule', [DashboardController::class, 'createSchedule'])->middleware(['auth:sanctum', 'role:customer']);
-    Route::get('/dashboard/schedule/', [DashboardController::class, 'createScheduleOneClick'])->middleware(['auth:sanctum', 'role:customer']);
-    Route::get('/dashboard/schedule/history', [DashboardController::class, 'history'])->middleware(['auth:sanctum', 'role:customer']);
-    Route::get('/dashboard/schedule/history/{id}', [DashboardController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:customer']);
-    
-    Route::get('/driver/trash', [DriverController::class, 'trash'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('/driver/schedules', [DriverController::class, 'index'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('/driver/schedules/history', [DriverController::class, 'history'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('autoCreateSchedule/{ccm}', [DriverController::class, 'autoCreateSchedule'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('/driver/schedules/history/{id}', [DriverController::class, 'historyDetail'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('/driver/schedules/{id}', [DriverController::class, 'show'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::get('/driver/schedules/pickup/{id}', [DriverController::class, 'pickup'])->middleware(['auth:sanctum', 'role:driver']);
-    Route::post('/driver/schedules/transaction/{id}', [DriverController::class, 'inputTransaction'])->middleware(['auth:sanctum', 'role:driver']);
+});
+
+// Dashboard Routes (Customer)
+Route::group(['prefix' => 'dashboard', 'middleware' => ['auth:sanctum', 'role:customer']], function () {
+    Route::get('/', [DashboardController::class, 'index']);
+    Route::post('/schedule', [DashboardController::class, 'createSchedule']);
+    Route::get('/schedule/', [DashboardController::class, 'createScheduleOneClick']);
+    Route::get('/schedule/history', [DashboardController::class, 'history']);
+    Route::get('/schedule/history/{id}', [DashboardController::class, 'historyDetail']);
+});
+
+// Driver Routes
+Route::group(['prefix' => 'driver', 'middleware' => ['auth:sanctum', 'role:driver']], function () {
+    Route::get('/trash', [DriverController::class, 'trash']);
+    Route::get('/schedules', [DriverController::class, 'index']);
+    Route::get('/schedules/history', [DriverController::class, 'history']);
+    Route::get('/schedules/history/{id}', [DriverController::class, 'historyDetail']);
+    Route::get('/schedules/{id}', [DriverController::class, 'show']);
+    Route::get('/schedules/pickup/{id}', [DriverController::class, 'pickup']);
+    Route::post('/schedules/transaction/{id}', [DriverController::class, 'inputTransaction']);
+    Route::get('autoCreateSchedule/{ccm}', [DriverController::class, 'autoCreateSchedule']);
+});
