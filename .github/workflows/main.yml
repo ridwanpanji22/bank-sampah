@@ -67,4 +67,4 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > id_rsa
         chmod 600 id_rsa
-        ssh -i id_rsa -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "cd /home/username/public_html/API && git pull origin main && composer install --no-dev && php artisan migrate:fresh --seed && php artisan cache:clear"
+        ssh -i id_rsa -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "cd /home/stmik-banksampah.neumediradev.my.id/public_html/API && git pull origin main && composer install --no-dev && php artisan migrate:fresh --seed && php artisan cache:clear"
