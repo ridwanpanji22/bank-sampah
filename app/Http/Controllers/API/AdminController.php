@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; 
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\Transaction;
@@ -22,7 +23,23 @@ class AdminController extends Controller
     public function index()
     {
         $admin = auth('sanctum')->user();
-        $users = User::get()->load('roles');
+        $users = User::latest()->get();
+        $users = $users->map(function($item) {
+            $item->role = $item->roles->pluck('name')[0];
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'email' => $item->email,
+                'ktp' => $item->ktp,
+                'address' => $item->address,
+                'phone' => $item->phone,
+                'ccm' => $item->ccm,
+                'house_hold' => $item->house_hold ?? '-',
+                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
+                'role' => $item->role
+            ];
+        });
 
         return response()->json([
             'success' => true,
@@ -59,6 +76,7 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'ktp' => 'required|string|max:255',
             'password' => 'required|string|min:8',
             'confirm_password' => 'required|same:password',
             'address' => 'required|string|max:255',
@@ -67,16 +85,17 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json($validator->errors(), 400); // 400 = bad request
         }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'ktp' => $request->ktp,
             'password' => Hash::make($request->password),
             'address' => $request->address,
             'phone' => $request->phone,
-            'ccm' => $request->ccm,
+            'ccm' => Str::random(10),
             'house_hold' => $request->house_hold,
         ]);
 
@@ -87,16 +106,41 @@ class AdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
-            'data' => $user,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'ktp' => $user->ktp,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold ?? '-',
+                'role' => $user->roles->first()->name ?? null,
+            ],
         ]);
     }
 
     public function show($id)
     {
         $user = User::find($id);
-        $user->load('roles');
+        $user->getRoleNames();
+
         return response()->json([
-            'data' => $user
+            'success' => true,
+            'message' => 'User retrieved successfully',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'ktp' => $user->ktp,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold ?? '-',
+                'withdrawable_balance' => 'Rp.' . number_format($user->withdrawable_balance, 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format($user->hold_balance, 0, ',', '.'),
+                'role' => $user->roles->first()->name
+            ]
         ]);
     }
 
@@ -106,6 +150,7 @@ class AdminController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
+                'ktp' => 'required|string',
                 'password' => 'string|min:8',
                 'confirm_password' => 'same:password',
                 'address' => 'required|string|max:255',
@@ -120,10 +165,10 @@ class AdminController extends Controller
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
+                'ktp' => $request->ktp,
                 'password' => Hash::make($request->password),
                 'address' => $request->address,
                 'phone' => $request->phone,
-                'ccm' => $request->ccm,
                 'house_hold' => $request->house_hold,
                 'withdrawable_balance' => $request->withdrawable_balance,
                 'hold_balance' => $request->hold_balance,
@@ -146,9 +191,9 @@ class AdminController extends Controller
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
+                'ktp' => $request->ktp,
                 'address' => $request->address,
                 'phone' => $request->phone,
-                'ccm' => $request->ccm,
                 'house_hold' => $request->house_hold,
                 'withdrawable_balance' => $request->withdrawable_balance,
                 'hold_balance' => $request->hold_balance,
@@ -162,7 +207,20 @@ class AdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User updated successfully',
-            'data' => $user,
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'ktp' => $user->ktp,
+                'address' => $user->address,
+                'phone' => $user->phone,
+                'ccm' => $user->ccm,
+                'house_hold' => $user->house_hold ?? '-',
+                'withdrawable_balance' => 'Rp.' . number_format($user->withdrawable_balance, 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format($user->hold_balance, 0, ',', '.'),
+                'role' => $user->roles->first()->name ?? null,
+
+            ],
         ]);
     }
 
@@ -180,9 +238,28 @@ class AdminController extends Controller
     {
         $users = User::whereHas('roles', function($query) {
             $query->where('name', 'customer');
-        })->with('roles')->get();
+        })->with('roles')->latest()->get();
+
+        $users = $users->map(function($item) {
+            $item->role = $item->roles->pluck('name')[0];
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'email' => $item->email,
+                'ktp' => $item->ktp,
+                'address' => $item->address,
+                'phone' => $item->phone,
+                'ccm' => $item->ccm,
+                'house_hold' => $item->house_hold ?? '-',
+                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
+                'role' => $item->role
+            ];
+        });
         
         return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully',
             'data' => $users
         ]);
     }
@@ -191,9 +268,28 @@ class AdminController extends Controller
     {
         $users = User::whereHas('roles', function($query) {
             $query->where('name', 'driver');
-        })->with('roles')->get();
+        })->with('roles')->latest()->get();
+
+        $users = $users->map(function($item) {
+            $item->role = $item->roles->pluck('name')[0];
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'email' => $item->email,
+                'ktp' => $item->ktp,
+                'address' => $item->address,
+                'phone' => $item->phone,
+                'ccm' => $item->ccm,
+                'house_hold' => $item->house_hold ?? '-',
+                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
+                'role' => $item->role
+            ];
+        });
         
         return response()->json([
+            'success' => true,
+            'message' => ' successfully',
             'data' => $users
         ]);
     }
@@ -203,7 +299,7 @@ class AdminController extends Controller
         $user = User::find($id);
         $transactions = Transaction::whereHas('users', function($query) use ($user) {
             $query->where('user_id', $user->id);
-        })->with(['users.roles'])->get();
+        })->with(['users.roles'])->latest('date')->get();
     
         $formattedTransactions = $transactions->map(function($transaction) {
             $type_trash = json_decode($transaction->type_trash);
@@ -245,7 +341,7 @@ class AdminController extends Controller
 
     public function transactions()
     {
-        $transactions = Transaction::all();
+        $transactions = Transaction::latest()->get();
     
         $formattedTransactions = $transactions->map(function($transaction) {
             $type_trash = json_decode($transaction->type_trash);
@@ -662,12 +758,6 @@ class AdminController extends Controller
         
         // Profit or Loss calculation
         $profit_or_loss = $total_sales_income - $total_transaction_cost;
-        
-        // Adjusting profit/loss by weight ratio if needed
-        if ($total_transaction_weight > 0) {
-            $weight_ratio = $total_sales_weight / $total_transaction_weight;
-            $profit_or_loss *= $weight_ratio;
-        }
 
         return response()->json([
             'success' => true,
@@ -799,12 +889,6 @@ class AdminController extends Controller
         
         // Profit or Loss calculation
         $profit_or_loss = $total_sales_income - $total_transaction_cost;
-        
-        // Adjusting profit/loss by weight ratio if needed
-        if ($total_transaction_weight > 0) {
-            $weight_ratio = $total_sales_weight / $total_transaction_weight;
-            $profit_or_loss *= $weight_ratio;
-        }
 
         return response()->json([
             'success' => true,

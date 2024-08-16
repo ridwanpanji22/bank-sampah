@@ -29,7 +29,7 @@ class PickupNotification extends Mailable
 
      public function build()
      {
-        return $this->view('emails.pickup_notification')
+        return $this->view('emails.pickup-notification')
                     ->with([
                         'schedule' => $this->schedule,
                     ]);
@@ -45,12 +45,12 @@ class PickupNotification extends Mailable
     /**
      * Get the message content definition.
      */
-    // public function content(): Content
-    // {
-    //     return new Content(
-    //         view: 'view.name',
-    //     );
-    // }
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.pickup-notification',
+        );
+    }
 
     /**
      * Get the attachments for the message.

@@ -13,7 +13,11 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use App\Mail\ResetPassword;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use App\Notifications\ResetPasswordNotification;
+
 
 class AuthController extends Controller
 {
@@ -96,7 +100,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'address' => $request->address,
             'phone' => $request->phone,
-            'ccm' => Str::random(6),
+            'ccm' => Str::random(10),
         ]);
     
         $user->assignRole('customer');
@@ -121,5 +125,61 @@ class AuthController extends Controller
             ],
             'access_token' => $token
         ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $status = Password::broker()->sendResetLink(
+            $request->only('email'),
+            function ($user, $token) {
+                $resetUrl = 'http://admin-bank-sampah.test/reset-password.php?token=' . $token . '&email=' . urlencode($user->email);
+        
+                // Send the password reset notification
+                $user->notify(new ResetPasswordNotification($resetUrl));
+            }
+        );        
+
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['status' => __($status)])
+            : response()->json(['email' => __($status)], 400);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'confirm_password', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+            }
+        );
+
+        if ($status == Password::PASSWORD_RESET) {
+            return response()->json(['status' => __($status)]);
+        }else{
+            return response()->json(['email' => __($status)], 400);
+        }
     }
 }

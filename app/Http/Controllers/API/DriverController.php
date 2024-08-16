@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\Trash;
 use App\Models\Transaction;
 use App\Mail\PickupNotification;
 use Illuminate\Support\Facades\Mail;
@@ -16,7 +18,8 @@ class DriverController extends Controller
     public function index()
     {
         $user = auth('sanctum')->user();
-        $schedules = Schedule::where('status', 'pending')->get();
+        $schedules = Schedule::where('status', 'pending')
+                    ->orwhere('status', 'on the way')->get();
 
         $schedules->map(function($item) {
             $item->customer = User::find($item->user_id_customer)->name;
@@ -39,7 +42,8 @@ class DriverController extends Controller
 
     public function show(Request $request, $id)
     {
-        $schedule = Schedule::where('id', $id)->where('status', 'pending')->get();
+        $schedule = Schedule::where('id', $id)->where('status', 'pending')
+                    ->orwhere('id', $id)->where('status', 'on the way')->get();
 
         if ($schedule->isEmpty()) {
             return response()->json([
@@ -200,7 +204,7 @@ class DriverController extends Controller
             $total_price += $request->price[$i] * $request->weight[$i];
         }
         
-        $schedule = Schedule::where('id', $id)->where('user_id_driver', auth('sanctum')->user()->id)->get();
+        $schedule = Schedule::where('id', $id)->get();
         
         if ($schedule->isEmpty()) {
             return response()->json([
@@ -208,18 +212,17 @@ class DriverController extends Controller
             ], 401);
         }
 
-        $schedule = $schedule->first();
-        
-        if ($schedule->status != 'on the way') {
+        if ($schedule->first()->status == 'completed') {
             return response()->json([
-                'message' => 'Schedule not on the way'
+                'message' => 'Schedule is already completed'
             ], 401);
         }
+
+        $schedule = $schedule->first();
         
         $driver = auth('sanctum')->user()->id;
         $customer = $schedule->user_id_customer;
         $users = [$driver, $customer];
-        
         
         $transaction = Transaction::create([
             'date' => $request->date,
@@ -242,6 +245,7 @@ class DriverController extends Controller
 
         
         $schedule->update([
+            'user_id_driver' => $driver,
             'status' => 'completed',
         ]);
         
@@ -285,4 +289,44 @@ class DriverController extends Controller
             'data' => $transaction
         ]);
     }
+
+    public function autoCreateSchedule($ccm)
+    {
+        $customer = User::where('ccm', $ccm)->get();
+        $driver = auth('sanctum')->user()->id;
+
+        $pickup_date = date('Y-m-d');
+        $pickup_time = date('H:i:s');
+        $status = 'on the way';
+        $name_explode = explode(' ', $customer->pluck('name')->first());
+        $first_name = $name_explode[0];
+        $number_order = $first_name.'-'.Str::random(5);
+
+        $schedule = Schedule::create([
+            'user_id_customer' => $customer->pluck('id')->first(),
+            'user_id_driver' => $driver,
+            'number_order' => $number_order,
+            'pickup_date' => $pickup_date,
+            'pickup_time' => $pickup_time,
+            'status' => $status
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Schedule created successfully',
+            'data' => $schedule
+        ]);
+    }
+
+    public function trash()
+    {
+        $trash = Trash::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trash retrieved successfully',
+            'data' => $trash
+        ]);
+    }
+
 }

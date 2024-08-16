@@ -86,7 +86,7 @@ class DashboardController extends Controller
         $name_explode = explode(' ', $user->name);
         $first_name = $name_explode[0];
         $number_order = $first_name.'-'.Str::random(5);
-        $status = 'pending';
+        $status = 'on the way';
 
         $schedule = Schedule::create([
             'user_id_customer' => $request->user()->id,
@@ -116,7 +116,7 @@ class DashboardController extends Controller
         if (!$schedules->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already created a schedule for today, please create on schedule pickup date'
+                'message' => 'You have already created a schedule instance for today, please create on schedule pickup date'
             ], 409); // 409 Conflict
         }
 
@@ -124,7 +124,7 @@ class DashboardController extends Controller
         $name_explode = explode(' ', $user->name);
         $first_name = $name_explode[0];
         $number_order = $first_name.'-'.Str::random(5);
-        $status = 'pending';
+        $status = 'on the way';
 
         $schedule = Schedule::create([
             'user_id_customer' => $request->user()->id,
