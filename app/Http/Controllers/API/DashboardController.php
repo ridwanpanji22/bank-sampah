@@ -13,6 +13,24 @@ use App\Http\Resources\ScheduleResource;
 
 class DashboardController extends Controller
 {
+    // Mencegah user yang tidak terverifikasi melakukan login
+    public function __construct()
+{
+    $this->middleware(function ($request, $next) {
+        if (auth('sanctum')->check()) {
+            $user = auth('sanctum')->user();
+            if (!$user->hasVerifiedEmail()) {
+                return response()->json([
+                    'message' => 'Akun belum diverifikasi oleh admin, harap tunggu verifikasi email terlebih dahulu'
+                ], 403);
+            }
+        }
+
+        return $next($request);
+    });
+}
+
+
     public function index(Request $request)
     {
         $user = auth('sanctum')->user();
