@@ -1182,9 +1182,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{local}}/api/login",
+							"raw": "{{stmik}}/api/login",
 							"host": [
-								"{{local}}"
+								"{{stmik}}"
 							],
 							"path": [
 								"api",
