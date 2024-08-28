@@ -24,6 +24,27 @@ class AdminController extends Controller
     {
         $admin = auth('sanctum')->user();
         $users = User::latest()->get();
+    
+        // Mendapatkan semua sales dan transactions
+        $sales = Sale::all();
+        $transactions = Transaction::all();
+    
+        // Menghitung total harga dari sales
+        $totalSalesPrice = $sales->sum(function($sale) {
+            return (int) $sale->total_price;
+        });
+    
+        // Menghitung total harga dari transactions
+        $totalTransactionsPrice = $transactions->sum(function($transaction) {
+            return (int) $transaction->total_price;
+        });
+    
+        // Menghitung jumlah user berdasarkan role
+        $roleCounts = $users->groupBy('roles.name')->map(function($group) {
+            return $group->count();
+        });
+    
+        // Mapping ulang data users untuk menambahkan field role dan mengembalikan dalam format yang diinginkan
         $users = $users->map(function($item) {
             $item->role = $item->roles->pluck('name')[0];
             return [
@@ -41,12 +62,22 @@ class AdminController extends Controller
             ];
         });
 
+        // Menghitung jumlah user berdasarkan role
+        $usersRole = $users->groupBy('role')->map(function($group) {
+            return $group->count();
+        });
+    
+        // Mengembalikan response dalam format JSON
         return response()->json([
             'success' => true,
             'admin' => $admin->name,
+            'total_customers' => $usersRole->get('customer', 0),
+            'total_drivers' => $usersRole->get('driver', 0),
+            'total_sales_price' => 'Rp.' . number_format($totalSalesPrice, 0, ',', '.'),
+            'total_transactions_price' => 'Rp.' . number_format($totalTransactionsPrice, 0, ',', '.'),
             'data' => $users
         ]);
-    }
+    }       
 
     public function sendVerificationEmail(Request $request)
     {
@@ -253,7 +284,8 @@ class AdminController extends Controller
                 'house_hold' => $item->house_hold ?? '-',
                 'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
                 'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
-                'role' => $item->role
+                'role' => $item->role,
+                'verified_at' => $item->verified_at
             ];
         });
         
@@ -334,7 +366,7 @@ class AdminController extends Controller
         });
     
         return response()->json([
-            'data' => $formattedTransactions
+            'data' => $formattedTransactions,
         ]);
     }
 
@@ -388,8 +420,8 @@ class AdminController extends Controller
                 'message' => $validate->errors(),
             ], 422);
         }
-
-        $request->date = date('Y-m-d', strtotime($request->date));
+        
+        $formattedDate = date('Y-m-d', strtotime($request->input('date')));
 
         $total_price = 0;
         for ($i = 0; $i < count($request->type_trash); $i++) {
@@ -402,7 +434,7 @@ class AdminController extends Controller
         }
 
         $sale = Sale::create([
-            'date' => $request->date,
+            'date' => $formattedDate,
             'name' => $request->name,
             'type_trash' => json_encode($request->type_trash),
             'price' => json_encode($request->price),
@@ -420,7 +452,7 @@ class AdminController extends Controller
 
     public function sales()
     {
-        $sales = Sale::all();
+        $sales = Sale::latest()->get();
 
         $formattedSales = $sales->map(function($sale) {
             $type_trash = json_decode($sale->type_trash);
