@@ -56,7 +56,7 @@ class AdminController extends Controller
                 'phone' => $item->phone,
                 'ccm' => $item->ccm,
                 'house_hold' => $item->house_hold ?? '-',
-                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
+                'withdrawable_balance' => 'Rp.' . number_format(floatval($item->withdrawable_balance), 0, ',', '.'),
                 'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
                 'role' => $item->role
             ];
