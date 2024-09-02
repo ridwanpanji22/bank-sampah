@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\Transaction;
@@ -12,6 +12,7 @@ use App\Models\Sale;
 use App\Models\Trash;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Mail;
@@ -24,28 +25,28 @@ class AdminController extends Controller
     {
         $admin = auth('sanctum')->user();
         $users = User::latest()->get();
-    
+
         // Mendapatkan semua sales dan transactions
         $sales = Sale::all();
         $transactions = Transaction::all();
-    
+
         // Menghitung total harga dari sales
-        $totalSalesPrice = $sales->sum(function($sale) {
+        $totalSalesPrice = $sales->sum(function ($sale) {
             return (int) $sale->total_price;
         });
-    
+
         // Menghitung total harga dari transactions
-        $totalTransactionsPrice = $transactions->sum(function($transaction) {
+        $totalTransactionsPrice = $transactions->sum(function ($transaction) {
             return (int) $transaction->total_price;
         });
-    
+
         // Menghitung jumlah user berdasarkan role
-        $roleCounts = $users->groupBy('roles.name')->map(function($group) {
+        $roleCounts = $users->groupBy('roles.name')->map(function ($group) {
             return $group->count();
         });
-    
+
         // Mapping ulang data users untuk menambahkan field role dan mengembalikan dalam format yang diinginkan
-        $users = $users->map(function($item) {
+        $users = $users->map(function ($item) {
             $item->role = $item->roles->pluck('name')[0];
             return [
                 'id' => $item->id,
@@ -63,10 +64,10 @@ class AdminController extends Controller
         });
 
         // Menghitung jumlah user berdasarkan role
-        $usersRole = $users->groupBy('role')->map(function($group) {
+        $usersRole = $users->groupBy('role')->map(function ($group) {
             return $group->count();
         });
-    
+
         // Mengembalikan response dalam format JSON
         return response()->json([
             'success' => true,
@@ -77,7 +78,7 @@ class AdminController extends Controller
             'total_transactions_price' => 'Rp.' . number_format(floatval($totalTransactionsPrice), 0, ',', '.'),
             'data' => $users
         ]);
-    }       
+    }
 
     public function sendVerificationEmail(Request $request)
     {
@@ -188,7 +189,7 @@ class AdminController extends Controller
                 'phone' => 'required|string|max:255',
                 'role' => 'required|string|max:255',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
@@ -205,7 +206,7 @@ class AdminController extends Controller
                 'hold_balance' => $request->hold_balance,
                 'role' => $request->role
             ]);
-        }else{
+        } else {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
@@ -214,7 +215,7 @@ class AdminController extends Controller
                 'role' => 'required|string|max:255',
                 'ktp' => 'required|string|max:255',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json($validator->errors(), 400);
             }
@@ -268,11 +269,11 @@ class AdminController extends Controller
 
     public function customers()
     {
-        $users = User::whereHas('roles', function($query) {
+        $users = User::whereHas('roles', function ($query) {
             $query->where('name', 'customer');
         })->with('roles')->latest()->get();
 
-        $users = $users->map(function($item) {
+        $users = $users->map(function ($item) {
             $item->role = $item->roles->pluck('name')[0];
             return [
                 'id' => $item->id,
@@ -289,21 +290,21 @@ class AdminController extends Controller
                 'verified_at' => $item->verified_at
             ];
         });
-        
+
         return response()->json([
             'success' => true,
             'message' => 'User deleted successfully',
             'data' => $users
         ]);
     }
-    
+
     public function drivers()
     {
-        $users = User::whereHas('roles', function($query) {
+        $users = User::whereHas('roles', function ($query) {
             $query->where('name', 'driver');
         })->with('roles')->latest()->get();
 
-        $users = $users->map(function($item) {
+        $users = $users->map(function ($item) {
             $item->role = $item->roles->pluck('name')[0];
             return [
                 'id' => $item->id,
@@ -319,7 +320,7 @@ class AdminController extends Controller
                 'role' => $item->role
             ];
         });
-        
+
         return response()->json([
             'success' => true,
             'message' => ' successfully',
@@ -330,15 +331,15 @@ class AdminController extends Controller
     public function userTransactions($id)
     {
         $user = User::find($id);
-        $transactions = Transaction::whereHas('users', function($query) use ($user) {
+        $transactions = Transaction::whereHas('users', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })->with(['users.roles'])->latest('date')->get();
-    
-        $formattedTransactions = $transactions->map(function($transaction) {
+
+        $formattedTransactions = $transactions->map(function ($transaction) {
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
-    
+
             $trash = [];
             for ($i = 0; $i < count($type_trash); $i++) {
                 $trash[] = [
@@ -347,15 +348,15 @@ class AdminController extends Controller
                     'weight' => $weight[$i],
                 ];
             }
-    
-            $customer = $transaction->users->first(function($user) {
+
+            $customer = $transaction->users->first(function ($user) {
                 return $user->roles->contains('name', 'customer');
             });
-    
-            $driver = $transaction->users->first(function($user) {
+
+            $driver = $transaction->users->first(function ($user) {
                 return $user->roles->contains('name', 'driver');
             });
-    
+
             return [
                 'id' => $transaction->id,
                 'date' => $transaction->date,
@@ -365,7 +366,7 @@ class AdminController extends Controller
                 'driver_name' => $driver ? $driver->name : null,
             ];
         });
-    
+
         return response()->json([
             'data' => $formattedTransactions,
         ]);
@@ -375,8 +376,8 @@ class AdminController extends Controller
     public function transactions()
     {
         $transactions = Transaction::latest()->get();
-    
-        $formattedTransactions = $transactions->map(function($transaction) {
+
+        $formattedTransactions = $transactions->map(function ($transaction) {
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
@@ -405,9 +406,29 @@ class AdminController extends Controller
         ]);
     }
 
-    public function createSale( Request $request )
+    public function createSale(Request $request)
     {
-        $validate = Validator::make($request->all(), [
+        // Ambil input tanggal
+        $dateInput = $request->input('date');
+
+        try {
+            // Coba untuk mengonversi tanggal input ke format yang benar
+            $formattedDate = Carbon::createFromFormat('d/m/Y', $dateInput)->format('Y-m-d');
+        } catch (\Exception $e) {
+            // Jika terjadi kesalahan, kembalikan pesan kesalahan
+            return response()->json([
+                'success' => false,
+                'message' => ['date' => ['The date field must be a valid date.']],
+            ], 422);
+        }
+
+        $validate = Validator::make([
+            'date' => $formattedDate, // Validasi menggunakan tanggal yang telah diformat
+            'name' => $request->input('name'),
+            'type_trash' => $request->input('type_trash'),
+            'price' => $request->input('price'),
+            'weight' => $request->input('weight'),
+        ], [
             'date' => 'required|date',
             'name' => 'required',
             'type_trash' => 'required|array',
@@ -421,8 +442,6 @@ class AdminController extends Controller
                 'message' => $validate->errors(),
             ], 422);
         }
-        
-        $formattedDate = date('Y-m-d', strtotime($request->input('date')));
 
         $total_price = 0;
         for ($i = 0; $i < count($request->type_trash); $i++) {
@@ -455,7 +474,7 @@ class AdminController extends Controller
     {
         $sales = Sale::latest()->get();
 
-        $formattedSales = $sales->map(function($sale) {
+        $formattedSales = $sales->map(function ($sale) {
             $type_trash = json_decode($sale->type_trash);
             $price = json_decode($sale->price);
             $weight = json_decode($sale->weight);
@@ -471,7 +490,7 @@ class AdminController extends Controller
 
             return [
                 'id' => $sale->id,
-                'date' => $sale->date,
+                'date' => date('d-m-Y', strtotime($sale->date)),
                 'name' => $sale->name,
                 'trash' => $trash,
                 'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
@@ -521,7 +540,7 @@ class AdminController extends Controller
         }
 
         $sale = Sale::find($id);
-        
+
         if (is_null($sale)) {
             return response()->json([
                 'success' => false,
@@ -574,7 +593,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function createTrash( Request $request )
+    public function createTrash(Request $request)
     {
         $validate = Validator::make($request->all(), [
             'name' => 'required',
@@ -629,7 +648,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function updateTrash( Request $request, $id )
+    public function updateTrash(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
             'name' => 'required',
@@ -679,7 +698,7 @@ class AdminController extends Controller
     {
         $start_date = $request->has('start_date') ? date('Y-m-d', strtotime($request->start_date)) : null;
         $end_date = $request->has('end_date') ? date('Y-m-d', strtotime($request->end_date)) : null;
-        
+
         if ($start_date && $end_date) {
             $validate = Validator::make($request->all(), [
                 'start_date' => 'required|date',
@@ -695,7 +714,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereBetween('date', [$start_date, $end_date])->get();
             $transactions = Transaction::whereBetween('date', [$start_date, $end_date])->get();
-
         } elseif ($start_date) {
             $validate = Validator::make($request->all(), [
                 'start_date' => 'required|date',
@@ -710,7 +728,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereDate('date', $start_date)->get();
             $transactions = Transaction::whereDate('date', $start_date)->get();
-
         } elseif ($end_date) {
             $validate = Validator::make($request->all(), [
                 'end_date' => 'required|date',
@@ -725,7 +742,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereDate('date', $end_date)->get();
             $transactions = Transaction::whereDate('date', $end_date)->get();
-
         } else {
             return response()->json([
                 'success' => false,
@@ -733,12 +749,12 @@ class AdminController extends Controller
             ], 400);
         }
 
-        
-        $formattedSales = $sales->map(function($sale) {
+
+        $formattedSales = $sales->map(function ($sale) {
             $type_trash = json_decode($sale->type_trash);
             $price = json_decode($sale->price);
             $weight = json_decode($sale->weight);
-            
+
             $trash = [];
             for ($i = 0; $i < count($type_trash); $i++) {
                 $trash[] = [
@@ -757,8 +773,8 @@ class AdminController extends Controller
                 'total_weight' => number_format(floatval($sale->total_weight), 0, ',', '.') . ' kg',
             ];
         });
-        
-        $formattedTransactions = $transactions->map(function($transaction) {
+
+        $formattedTransactions = $transactions->map(function ($transaction) {
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
@@ -780,15 +796,15 @@ class AdminController extends Controller
                 'total_weight' => array_sum($weight),
             ];
         });
-        
+
         // Total income and weight from sales
         $total_sales_income = $sales->sum('total_price');
         $total_sales_weight = $sales->sum('total_weight');
-        
+
         // Total cost and weight from transactions
         $total_transaction_cost = $transactions->sum('total_price');
         $total_transaction_weight = $formattedTransactions->sum('total_weight');
-        
+
         // Profit or Loss calculation
         $profit_or_loss = $total_sales_income - $total_transaction_cost;
 
@@ -802,15 +818,15 @@ class AdminController extends Controller
                 'total_sales_weight' => number_format(floatval($total_sales_weight), 0, ',', '.') . ' kg',
                 'total_transaction_cost' => 'Rp.' . number_format(floatval($total_transaction_cost), 0, ',', '.'),
                 'total_transaction_weight' => number_format(floatval($total_transaction_weight), 0, ',', '.') . ' kg'
-                ]
+            ]
         ]);
     }
 
-    public function transactionsReports( Request $request )
+    public function transactionsReports(Request $request)
     {
         $start_date = $request->has('start_date') ? date('Y-m-d', strtotime($request->start_date)) : null;
         $end_date = $request->has('end_date') ? date('Y-m-d', strtotime($request->end_date)) : null;
-        
+
         if ($start_date && $end_date) {
             $validate = Validator::make($request->all(), [
                 'start_date' => 'required|date',
@@ -826,7 +842,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereBetween('date', [$start_date, $end_date])->get();
             $transactions = Transaction::whereBetween('date', [$start_date, $end_date])->get();
-
         } elseif ($start_date) {
             $validate = Validator::make($request->all(), [
                 'start_date' => 'required|date',
@@ -841,7 +856,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereDate('date', $start_date)->get();
             $transactions = Transaction::whereDate('date', $start_date)->get();
-
         } elseif ($end_date) {
             $validate = Validator::make($request->all(), [
                 'end_date' => 'required|date',
@@ -856,7 +870,6 @@ class AdminController extends Controller
 
             $sales = Sale::whereDate('date', $end_date)->get();
             $transactions = Transaction::whereDate('date', $end_date)->get();
-
         } else {
             return response()->json([
                 'success' => false,
@@ -864,12 +877,12 @@ class AdminController extends Controller
             ], 400);
         }
 
-        
-        $formattedSales = $sales->map(function($sale) {
+
+        $formattedSales = $sales->map(function ($sale) {
             $type_trash = json_decode($sale->type_trash);
             $price = json_decode($sale->price);
             $weight = json_decode($sale->weight);
-            
+
             $trash = [];
             for ($i = 0; $i < count($type_trash); $i++) {
                 $trash[] = [
@@ -888,8 +901,8 @@ class AdminController extends Controller
                 'total_weight' => number_format(floatval($sale->total_weight), 0, ',', '.') . ' kg',
             ];
         });
-        
-        $formattedTransactions = $transactions->map(function($transaction) {
+
+        $formattedTransactions = $transactions->map(function ($transaction) {
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
@@ -911,15 +924,15 @@ class AdminController extends Controller
                 'total_weight' => array_sum($weight),
             ];
         });
-        
+
         // Total income and weight from sales
         $total_sales_income = $sales->sum('total_price');
         $total_sales_weight = $sales->sum('total_weight');
-        
+
         // Total cost and weight from transactions
         $total_transaction_cost = $transactions->sum('total_price');
         $total_transaction_weight = $formattedTransactions->sum('total_weight');
-        
+
         // Profit or Loss calculation
         $profit_or_loss = $total_sales_income - $total_transaction_cost;
 
@@ -933,7 +946,7 @@ class AdminController extends Controller
                 'total_sales_weight' => number_format(floatval($total_sales_weight), 0, ',', '.') . ' kg',
                 'total_transaction_cost' => 'Rp.' . number_format(floatval($total_transaction_cost), 0, ',', '.'),
                 'total_transaction_weight' => number_format(floatval($total_transaction_weight), 0, ',', '.') . ' kg'
-                ]
+            ]
         ]);
     }
 }
