@@ -474,8 +474,8 @@ class AdminController extends Controller
                 'date' => $sale->date,
                 'name' => $sale->name,
                 'trash' => $trash,
-                'total_price' => $sale->total_price,
-                'total_weight' => $sale->total_weight,
+                'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
+                'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
             ];
         });
 
