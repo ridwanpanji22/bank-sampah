@@ -73,8 +73,8 @@ class AdminController extends Controller
             'admin' => $admin->name,
             'total_customers' => $usersRole->get('customer', 0),
             'total_drivers' => $usersRole->get('driver', 0),
-            'total_sales_price' => 'Rp.' . number_format($totalSalesPrice, 0, ',', '.'),
-            'total_transactions_price' => 'Rp.' . number_format($totalTransactionsPrice, 0, ',', '.'),
+            'total_sales_price' => 'Rp.' . number_format(floatval($totalSalesPrice), 0, ',', '.'),
+            'total_transactions_price' => 'Rp.' . number_format(floatval($totalTransactionsPrice), 0, ',', '.'),
             'data' => $users
         ]);
     }       
@@ -168,8 +168,8 @@ class AdminController extends Controller
                 'phone' => $user->phone,
                 'ccm' => $user->ccm,
                 'house_hold' => $user->house_hold ?? '-',
-                'withdrawable_balance' => 'Rp.' . number_format($user->withdrawable_balance, 0, ',', '.'),
-                'hold_balance' => 'Rp.' . number_format($user->hold_balance, 0, ',', '.'),
+                'withdrawable_balance' => 'Rp.' . number_format(floatval($user->withdrawable_balance), 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format(floatval($user->hold_balance), 0, ',', '.'),
                 'role' => $user->roles->first()->name
             ]
         ]);
@@ -248,8 +248,8 @@ class AdminController extends Controller
                 'phone' => $user->phone,
                 'ccm' => $user->ccm,
                 'house_hold' => $user->house_hold ?? '-',
-                'withdrawable_balance' => 'Rp.' . number_format($user->withdrawable_balance, 0, ',', '.'),
-                'hold_balance' => 'Rp.' . number_format($user->hold_balance, 0, ',', '.'),
+                'withdrawable_balance' => 'Rp.' . number_format(floatval($user->withdrawable_balance), 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format(floatval($user->hold_balance), 0, ',', '.'),
                 'role' => $user->roles->first()->name ?? null,
 
             ],
@@ -283,8 +283,8 @@ class AdminController extends Controller
                 'phone' => $item->phone,
                 'ccm' => $item->ccm,
                 'house_hold' => $item->house_hold ?? '-',
-                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
-                'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
+                'withdrawable_balance' => 'Rp.' . number_format(floatval($item->withdrawable_balance), 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format(floatval($item->hold_balance), 0, ',', '.'),
                 'role' => $item->role,
                 'verified_at' => $item->verified_at
             ];
@@ -314,8 +314,8 @@ class AdminController extends Controller
                 'phone' => $item->phone,
                 'ccm' => $item->ccm,
                 'house_hold' => $item->house_hold ?? '-',
-                'withdrawable_balance' => 'Rp.' . number_format($item->withdrawable_balance, 0, ',', '.'),
-                'hold_balance' => 'Rp.' . number_format($item->hold_balance, 0, ',', '.'),
+                'withdrawable_balance' => 'Rp.' . number_format(floatval($item->withdrawable_balance), 0, ',', '.'),
+                'hold_balance' => 'Rp.' . number_format(floatval($item->hold_balance), 0, ',', '.'),
                 'role' => $item->role
             ];
         });
@@ -753,8 +753,8 @@ class AdminController extends Controller
                 'date' => $sale->date,
                 'name' => $sale->name,
                 'trash' => $trash,
-                'total_price' => 'Rp.' . number_format($sale->total_price, 0, ',', '.'),
-                'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
+                'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
+                'total_weight' => number_format(floatval($sale->total_weight), 0, ',', '.') . ' kg',
             ];
         });
         
@@ -776,7 +776,7 @@ class AdminController extends Controller
                 'id' => $transaction->id,
                 'date' => $transaction->date,
                 'trash' => $trash,
-                'total_price' => 'Rp.' . number_format($transaction->total_price, 0, ',', '.'),
+                'total_price' => 'Rp.' . number_format(floatval($transaction->total_price), 0, ',', '.'),
                 'total_weight' => array_sum($weight),
             ];
         });
@@ -797,11 +797,11 @@ class AdminController extends Controller
             'message' => 'Sales and transactions retrieved successfully',
             'data' => [
                 'sales' => $formattedSales,
-                'profit_or_loss' => 'Rp.' . number_format($profit_or_loss, 0, ',', '.'),
-                'total_sales_income' => 'Rp.' . number_format($total_sales_income, 0, ',', '.'),
-                'total_sales_weight' => number_format($total_sales_weight, 0, ',', '.') . ' kg',
-                'total_transaction_cost' => 'Rp.' . number_format($total_transaction_cost, 0, ',', '.'),
-                'total_transaction_weight' => number_format($total_transaction_weight, 0, ',', '.') . ' kg'
+                'profit_or_loss' => 'Rp.' . number_format(floatval($profit_or_loss), 0, ',', '.'),
+                'total_sales_income' => 'Rp.' . number_format(floatval($total_sales_income), 0, ',', '.'),
+                'total_sales_weight' => number_format(floatval($total_sales_weight), 0, ',', '.') . ' kg',
+                'total_transaction_cost' => 'Rp.' . number_format(floatval($total_transaction_cost), 0, ',', '.'),
+                'total_transaction_weight' => number_format(floatval($total_transaction_weight), 0, ',', '.') . ' kg'
                 ]
         ]);
     }
@@ -884,8 +884,8 @@ class AdminController extends Controller
                 'date' => $sale->date,
                 'name' => $sale->name,
                 'trash' => $trash,
-                'total_price' => 'Rp.' . number_format($sale->total_price, 0, ',', '.'),
-                'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
+                'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
+                'total_weight' => number_format(floatval($sale->total_weight), 0, ',', '.') . ' kg',
             ];
         });
         
@@ -907,7 +907,7 @@ class AdminController extends Controller
                 'id' => $transaction->id,
                 'date' => $transaction->date,
                 'trash' => $trash,
-                'total_price' => 'Rp.' . number_format($transaction->total_price, 0, ',', '.'),
+                'total_price' => 'Rp.' . number_format(floatval($transaction->total_price), 0, ',', '.'),
                 'total_weight' => array_sum($weight),
             ];
         });
@@ -928,11 +928,11 @@ class AdminController extends Controller
             'message' => 'Sales and transactions retrieved successfully',
             'data' => [
                 'transactions' => $formattedTransactions,
-                'profit_or_loss' => 'Rp.' . number_format($profit_or_loss, 0, ',', '.'),
-                'total_sales_income' => 'Rp.' . number_format($total_sales_income, 0, ',', '.'),
-                'total_sales_weight' => number_format($total_sales_weight, 0, ',', '.') . ' kg',
-                'total_transaction_cost' => 'Rp.' . number_format($total_transaction_cost, 0, ',', '.'),
-                'total_transaction_weight' => number_format($total_transaction_weight, 0, ',', '.') . ' kg'
+                'profit_or_loss' => 'Rp.' . number_format(floatval($profit_or_loss), 0, ',', '.'),
+                'total_sales_income' => 'Rp.' . number_format(floatval($total_sales_income), 0, ',', '.'),
+                'total_sales_weight' => number_format(floatval($total_sales_weight), 0, ',', '.') . ' kg',
+                'total_transaction_cost' => 'Rp.' . number_format(floatval($total_transaction_cost), 0, ',', '.'),
+                'total_transaction_weight' => number_format(floatval($total_transaction_weight), 0, ',', '.') . ' kg'
                 ]
         ]);
     }
