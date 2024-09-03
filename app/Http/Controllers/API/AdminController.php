@@ -359,7 +359,7 @@ class AdminController extends Controller
 
             return [
                 'id' => $transaction->id,
-                'date' => $transaction->date,
+                'date' => date('d-m-Y', strtotime($transaction->date)),
                 'schedule_id' => $transaction->schedule_id,
                 'trash' => $trash,
                 'customer_name' => $customer ? $customer->name : null,
@@ -368,6 +368,8 @@ class AdminController extends Controller
         });
 
         return response()->json([
+            'success' => true,
+            'message' => 'Transactions retrieved successfully',
             'data' => $formattedTransactions,
         ]);
     }
