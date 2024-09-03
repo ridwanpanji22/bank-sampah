@@ -17,6 +17,16 @@ class Schedule extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'user_id_customer');
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'user_id_driver');
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

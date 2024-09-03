@@ -879,36 +879,11 @@ class AdminController extends Controller
             ], 400);
         }
 
-
-        $formattedSales = $sales->map(function ($sale) {
-            $type_trash = json_decode($sale->type_trash);
-            $price = json_decode($sale->price);
-            $weight = json_decode($sale->weight);
-
-            $trash = [];
-            for ($i = 0; $i < count($type_trash); $i++) {
-                $trash[] = [
-                    'type_trash' => $type_trash[$i],
-                    'price' => $price[$i],
-                    'weight' => $weight[$i],
-                ];
-            }
-
-            return [
-                'id' => $sale->id,
-                'date' => $sale->date,
-                'name' => $sale->name,
-                'trash' => $trash,
-                'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
-                'total_weight' => number_format(floatval($sale->total_weight), 0, ',', '.') . ' kg',
-            ];
-        });
-
         $formattedTransactions = $transactions->map(function ($transaction) {
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
-
+            
             $trash = [];
             for ($i = 0; $i < count($type_trash); $i++) {
                 $trash[] = [
@@ -917,10 +892,15 @@ class AdminController extends Controller
                     'weight' => $weight[$i],
                 ];
             }
+            $transaction->customer_name = Schedule::find($transaction->schedule_id)->customer->name;
+            $transaction->driver_name = Schedule::find($transaction->schedule_id)->driver->name;
+            
 
             return [
                 'id' => $transaction->id,
                 'date' => $transaction->date,
+                'customer_name' => $transaction->customer_name,
+                'driver_name' => $transaction->driver_name,
                 'trash' => $trash,
                 'total_price' => 'Rp.' . number_format(floatval($transaction->total_price), 0, ',', '.'),
                 'total_weight' => array_sum($weight),
