@@ -287,7 +287,7 @@ class AdminController extends Controller
                 'withdrawable_balance' => 'Rp.' . number_format(floatval($item->withdrawable_balance), 0, ',', '.'),
                 'hold_balance' => 'Rp.' . number_format(floatval($item->hold_balance), 0, ',', '.'),
                 'role' => $item->role,
-                'verified_at' => $item->verified_at
+                'verified_at' => $item->email_verified_at
             ];
         });
 
