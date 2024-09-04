@@ -410,27 +410,7 @@ class AdminController extends Controller
 
     public function createSale(Request $request)
     {
-        // Ambil input tanggal
-        $dateInput = $request->input('date');
-
-        try {
-            // Coba untuk mengonversi tanggal input ke format yang benar
-            $formattedDate = Carbon::createFromFormat('d/m/Y', $dateInput)->format('Y-m-d');
-        } catch (\Exception $e) {
-            // Jika terjadi kesalahan, kembalikan pesan kesalahan
-            return response()->json([
-                'success' => false,
-                'message' => ['date' => ['The date field must be a valid date.']],
-            ], 422);
-        }
-
-        $validate = Validator::make([
-            'date' => $formattedDate, // Validasi menggunakan tanggal yang telah diformat
-            'name' => $request->input('name'),
-            'type_trash' => $request->input('type_trash'),
-            'price' => $request->input('price'),
-            'weight' => $request->input('weight'),
-        ], [
+        $validate = Validator::make($request->all(), [
             'date' => 'required|date',
             'name' => 'required',
             'type_trash' => 'required|array',
@@ -456,7 +436,7 @@ class AdminController extends Controller
         }
 
         $sale = Sale::create([
-            'date' => $formattedDate,
+            'date' => $request->date,
             'name' => $request->name,
             'type_trash' => json_encode($request->type_trash),
             'price' => json_encode($request->price),
