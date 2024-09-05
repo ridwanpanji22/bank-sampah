@@ -498,10 +498,35 @@ class AdminController extends Controller
             ], 404);
         }
 
+        // Dekode JSON dari sale
+        $type_trash = json_decode($sale->type_trash);
+        $price = json_decode($sale->price);
+        $weight = json_decode($sale->weight);
+
+        $trash = [];
+        for ($i = 0; $i < count($type_trash); $i++) {
+            $trash[] = [
+                'type_trash' => $type_trash[$i],
+                'price' => $price[$i],
+                'weight' => $weight[$i],
+            ];
+        }
+
+        // Format data sale
+        $formattedSale = [
+            'id' => $sale->id,
+            'date' => date('Y-m-d', strtotime($sale->date)),
+            'name' => $sale->name,
+            'trash' => $trash,
+            'total_price' => 'Rp.' . number_format(floatval($sale->total_price), 0, ',', '.'),
+            'total_weight' => number_format($sale->total_weight, 0, ',', '.') . ' kg',
+        ];
+
+        // Return response
         return response()->json([
             'success' => true,
             'message' => 'Sale retrieved successfully',
-            'data' => $sale
+            'data' => $formattedSale
         ]);
     }
 
@@ -863,7 +888,7 @@ class AdminController extends Controller
             $type_trash = json_decode($transaction->type_trash);
             $price = json_decode($transaction->price);
             $weight = json_decode($transaction->weight);
-            
+
             $trash = [];
             for ($i = 0; $i < count($type_trash); $i++) {
                 $trash[] = [
@@ -874,7 +899,7 @@ class AdminController extends Controller
             }
             $transaction->customer_name = Schedule::find($transaction->schedule_id)->customer->name;
             $transaction->driver_name = Schedule::find($transaction->schedule_id)->driver->name;
-            
+
 
             return [
                 'id' => $transaction->id,
