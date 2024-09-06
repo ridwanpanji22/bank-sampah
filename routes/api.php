@@ -29,19 +29,6 @@ Route::group(['prefix' => 'email'], function () {
         return response()->json(['message' => 'Verification link sent!']);
     })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
 
-    // Route::get('/verify/{id}/{hash}', function (Request $request) {
-    //     $user = User::findOrFail($request->id);
-
-    //     if (!hash_equals((string) $request->hash, sha1($user->email))) {
-    //         return response()->json(['message' => 'Invalid verification link'], 400);
-    //     }
-
-    //     $user->markEmailAsVerified();
-    //     // return response()->json(['message' => 'Email verified successfully']);
-    //     return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php')
-    //         ->with('message', 'Email verified successfully');
-    // })->middleware(['signed'])->name('verification.verify');
-
     Route::get('/verify/{id}/{hash}', function (Request $request) {
         $user = User::findOrFail($request->id);
 

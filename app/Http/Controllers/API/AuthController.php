@@ -140,7 +140,7 @@ class AuthController extends Controller
         $status = Password::broker()->sendResetLink(
             $request->only('email'),
             function ($user, $token) {
-                $resetUrl = 'http://admin-bank-sampah.test/reset-password.php?token=' . $token . '&email=' . urlencode($user->email);
+                $resetUrl = 'http://panel-bank-sampah.test/change-password.php?token=' . $token . '&email=' . urlencode($user->email);
         
                 // Send the password reset notification
                 $user->notify(new ResetPasswordNotification($resetUrl));
