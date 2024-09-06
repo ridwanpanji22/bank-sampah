@@ -46,14 +46,12 @@ Route::group(['prefix' => 'email'], function () {
         $user = User::findOrFail($request->id);
 
         if (!hash_equals((string) $request->hash, sha1($user->email))) {
-            return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php')
-                ->with('status', 'failed'); // Gagal diverifikasi
+            return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php?status=failed');
         }
 
         $user->markEmailAsVerified();
 
-        return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php')
-            ->with('status', 'success'); // Berhasil diverifikasi
+        return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php?status=success');
     })->middleware(['signed'])->name('verification.verify');
 });
 
