@@ -35,9 +35,10 @@ Route::group(['prefix' => 'email'], function () {
         if (!hash_equals((string) $request->hash, sha1($user->email))) {
             return response()->json(['message' => 'Invalid verification link'], 400);
         }
-
+        
         $user->markEmailAsVerified();
-        return response()->json(['message' => 'Email verified successfully']);
+        // return response()->json(['message' => 'Email verified successfully']);
+        return redirect('https://stmik-banksampah.neumediradev.my.id/verify.php')->with(response()->json(['message' => 'Email verified successfully']));
     })->middleware(['signed'])->name('verification.verify');
 });
 
