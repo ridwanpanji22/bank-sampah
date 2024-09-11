@@ -1,0 +1,1777 @@
+{
+	"info": {
+		"_postman_id": "f08873b6-03c4-45db-9889-fc4412870640",
+		"name": "Bank Sampah Digital",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "36918586-f08873b6-03c4-45db-9889-fc4412870640"
+	},
+	"item": [
+		{
+			"name": "Admin Panel",
+			"item": [
+				{
+					"name": "User Management",
+					"item": [
+						{
+							"name": "Register All Users",
+							"id": "426bba81-d762-4ea4-bf10-532576343a69",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Rama",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "radma@mail.coms",
+											"type": "text"
+										},
+										{
+											"key": "ktp",
+											"value": "gdsgfdsyfsyfytftyed",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										},
+										{
+											"key": "confirm_password",
+											"value": "12345678",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "Bincau",
+											"type": "text"
+										},
+										{
+											"key": "phone",
+											"value": "0987654321",
+											"type": "text"
+										},
+										{
+											"key": "ccm",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "house_hold",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "withdrawable_balance",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "hold_balance",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "role",
+											"value": "driver",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/register",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Users",
+							"id": "f5025567-4c4c-4de7-98c7-584562c54d9f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "29|wczKmsRPEERii1WynGX03xbMnD84DgNYg7uxoRXp36c036cf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/users",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Customers",
+							"id": "4ee2dae0-2a47-4f1d-b266-9ef5fb3ff19b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/customers",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"customers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Drivers",
+							"id": "0f227bd6-ce2c-4e0c-8f0d-41ba7b90429a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/drivers",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"drivers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User Transactions",
+							"id": "09936f58-5ff9-4021-a070-ee6e6dcb5071",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/users/transactions/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"transactions",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User ID",
+							"id": "ff6d3a15-2724-4380-baca-70f5d83885f5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/users/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User",
+							"id": "f1ece399-37d2-4db6-b5f1-160436fc61ce",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "2|UXwUsX6EYiDyTo7xcrnfVMemKi6kK3GGERQuDZ6D7af2a3a9",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "_method",
+											"value": "PATCH",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "Muhammad Fachri",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "muhammadfachri@mail.com",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "Bincau",
+											"type": "text"
+										},
+										{
+											"key": "phone",
+											"value": "0987654321",
+											"type": "text"
+										},
+										{
+											"key": "ccm",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "house_hold",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "withdrawable_balance",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "hold_balance",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "role",
+											"value": "customer",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/users/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"id": "16137fd9-4693-49d0-a1bd-47a03ec96f11",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "2|UXwUsX6EYiDyTo7xcrnfVMemKi6kK3GGERQuDZ6D7af2a3a9",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/users/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Transactions",
+							"id": "6b225929-07d0-4117-8b36-a887a87b5bdf",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/transactions",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"transactions"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "9ad217e5-e39d-4cf7-aa6e-4575255788da"
+				},
+				{
+					"name": "Sales",
+					"item": [
+						{
+							"name": "Create Sale",
+							"id": "14e09b7e-97ef-4594-8f65-a4ae726f15bb",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "date",
+											"value": "2026/05/06",
+											"type": "text"
+										},
+										{
+											"key": "name",
+											"value": "PT Lampu Terang",
+											"type": "text"
+										},
+										{
+											"key": "type_trash[]",
+											"value": "Kaca",
+											"type": "text"
+										},
+										{
+											"key": "price[]",
+											"value": "5000",
+											"type": "text"
+										},
+										{
+											"key": "weight[]",
+											"value": "2.3",
+											"type": "text"
+										},
+										{
+											"key": "type_trash[]",
+											"value": "Besi",
+											"type": "text"
+										},
+										{
+											"key": "price[]",
+											"value": "10000",
+											"type": "text"
+										},
+										{
+											"key": "weight[]",
+											"value": "5",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/sales/create",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"sales",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Sale",
+							"id": "6d0fc65c-31ba-45a9-8036-1749d5559185",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "PT Lampu Gelap",
+											"type": "text"
+										},
+										{
+											"key": "type_trash[]",
+											"value": "Kaca",
+											"type": "text"
+										},
+										{
+											"key": "price[]",
+											"value": "5000",
+											"type": "text"
+										},
+										{
+											"key": "weight[]",
+											"value": "2.3",
+											"type": "text"
+										},
+										{
+											"key": "type_trash[]",
+											"value": "Besi",
+											"type": "text"
+										},
+										{
+											"key": "price[]",
+											"value": "10000",
+											"type": "text"
+										},
+										{
+											"key": "weight[]",
+											"value": "5",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/sales/update/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"sales",
+										"update",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Sales",
+							"id": "da3e3611-5220-4c00-9fc2-29b0d1f9c140",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/sales/",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"sales",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Sale by ID",
+							"id": "71b6469a-0af7-4e0b-905d-86fdca674f53",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/sales/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"sales",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Sale",
+							"id": "43c669aa-c9d8-4348-bebd-0916e57dac33",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/sales/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"sales",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "0ca0d699-4fbc-418d-b311-50d1f53bf3bb"
+				},
+				{
+					"name": "Trash",
+					"item": [
+						{
+							"name": "Create Trash",
+							"id": "d3e530c0-92fa-4e43-8103-5910411df4c8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Kaca",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "5000",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/trash/create",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"trash",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Trash",
+							"id": "776bfcc0-2f22-41a8-9228-0428de7f5e56",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Kaca",
+											"type": "text"
+										},
+										{
+											"key": "price",
+											"value": "4000",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{stmik}}/api/admin/trash/update/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"trash",
+										"update",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Trash",
+							"id": "e5c9336d-0ae8-43d3-ade6-ab5783e44234",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/trash",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"trash"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Trash by ID",
+							"id": "8ac9e0d2-c512-4813-a5e2-d78215488e5c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/trash/1",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"trash",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Trash",
+							"id": "a0e9aa1d-3753-4b65-a95d-47d977714bb7",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "1|XmfrpH2iEAHARKi9dutGrMnW6j13btQiMVa4ITKvf49305a0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{stmik}}/api/admin/trash/2",
+									"host": [
+										"{{stmik}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"trash",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "b0e76992-19f5-451b-a8a2-1e4b0e7a6748"
+				},
+				{
+					"name": "Sales Reports",
+					"id": "bb10b0a9-4afc-4b1a-8b62-0d250cfcacf1",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "start_date",
+									"value": "2023/01/29",
+									"type": "text"
+								},
+								{
+									"key": "end_date",
+									"value": "2023/01/29",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/admin/salesReports",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"salesReports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transactions Reports",
+					"id": "4ec08ad7-213f-4740-8949-ff42503577ad",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "8|7nYkNDQVFeqcTZWDQ0wj433s6IgNVj5I6DiJ8bvi8c6d7f6f",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "start_date",
+									"value": "2023/01/29",
+									"type": "text"
+								},
+								{
+									"key": "end_date",
+									"value": "2023/01/29",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/admin/salesReports",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"salesReports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Verification Email",
+					"id": "db2b6cc9-d3e2-42e4-b007-9e1a045dc9d9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/admin/email/verification",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"email",
+								"verification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate QRcode",
+					"id": "e432312b-972b-45c2-869c-84a67e3fad18",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "20|RDpLcP2yyEqgUgSLBT5aTrnaNgIThXMaT1x8fPLS1d55e587",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ccm",
+									"value": "PanjiGanteng",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/admin/qrcode-generate/06MGmFEpYO",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"qrcode-generate",
+								"06MGmFEpYO"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "41fafeec-67d8-47ca-93a9-335b051b0909"
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register Customer",
+					"id": "0da77832-efea-4b82-a88c-f4eede6019b4",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Ridwan Panji",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "9jqm80kf3f@knmcadibav.com",
+									"type": "text"
+								},
+								{
+									"key": "ktp",
+									"value": "87644324124325436546547",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "confirm_password",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Bincau",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "87895282222",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/register",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"id": "1978e70f-fdb9-44a5-ad5e-cf7278d81138",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "admin@mail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/login",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"id": "d02c10df-f79c-4cfd-a405-42e4ef52d1ef",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "25|TlbY4S5KZi8M8r0UkgNXg1jBmyJgZbnFyHgH0SnT67bd48e5",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/logout",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"id": "b83ba46f-a1f7-4b68-954f-8b677a7ddeb6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "b3zh35z0ul@qejjyl.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/reset-password",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "41f6db90-4263-4d5d-9524-3a96c138d942"
+		},
+		{
+			"name": "Nasbah",
+			"item": [
+				{
+					"name": "Dashboard",
+					"id": "4f369d7f-8f71-4d7c-bc3a-abcb60080b4c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "2|AfvrGU5DqyntPthfc6lBJsnZ8bSkF0DbJcCTqneFff63d4c0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/dashboard",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Schedule",
+					"id": "1c2906ea-58ae-4921-849a-89a274986844",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "2|AfvrGU5DqyntPthfc6lBJsnZ8bSkF0DbJcCTqneFff63d4c0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "pickup_date",
+									"value": "2024/08/07",
+									"type": "text"
+								},
+								{
+									"key": "pickup_time",
+									"value": "10:30",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/dashboard/schedule",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Schedule One Click",
+					"id": "ab0bc7d3-dff1-4441-98b1-433798305aab",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "2|AfvrGU5DqyntPthfc6lBJsnZ8bSkF0DbJcCTqneFff63d4c0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/dashboard/schedule",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "History",
+					"id": "88de5f83-0c3c-4d2b-8c2e-23d69a0c25f6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "3|6w6eNiACrTZ2QuUD9CzES1WVOw5Hm0lMa2sjGGxj43042a70",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/dashboard/schedule/history",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"schedule",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "History Detail",
+					"id": "2fbac23b-88d7-4faf-b13f-70c0eb7a5a93",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "2|AfvrGU5DqyntPthfc6lBJsnZ8bSkF0DbJcCTqneFff63d4c0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/dashboard/schedule/history/1",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"schedule",
+								"history",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "d20c796a-2579-4b23-b1bd-209344cf4eb6"
+		},
+		{
+			"name": "Supir",
+			"item": [
+				{
+					"name": "Driver Dashboard",
+					"id": "5707559c-854a-4aa2-9b2e-1e9c4fee5b9b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "11|QQVHxsWhgslH3RXSAlhWv5ISCVpPrvWUwD1Dzyh0293e1ca3",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/schedules",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"schedules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Schedule",
+					"id": "83396a03-6507-4cc3-87c5-3426b0cd9139",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "10|Aq1lWF9hmJPGKE926D34rPDtLCgt21v1tGdi6oCxa90e6fdc",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/schedules/1",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"schedules",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Input Transaction",
+					"id": "8707fbd4-fde0-4d89-b6de-4f41d11b1ee8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "3|7BiHQvMDMcZAhSmd88CrfLO2VRBrkXXA191v7Bpred57ebab",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "date",
+									"value": "2024/07/25",
+									"type": "text"
+								},
+								{
+									"key": "type_trash[]",
+									"value": "Kaca",
+									"type": "text"
+								},
+								{
+									"key": "price[]",
+									"value": "15000",
+									"type": "text"
+								},
+								{
+									"key": "weight[]",
+									"value": "1.3",
+									"type": "text"
+								},
+								{
+									"key": "type_trash[]",
+									"value": "Plastik",
+									"type": "text"
+								},
+								{
+									"key": "price[]",
+									"value": "5000",
+									"type": "text"
+								},
+								{
+									"key": "weight[]",
+									"value": "4.5",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{stmik}}/api/driver/schedules/transaction/1",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"schedules",
+								"transaction",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "History",
+					"id": "48a0ae17-576f-474d-89e8-6f22370e0162",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "11|8wq1zix8OqyfthO0tVVNeudqOVbtpXE0c0KKh97Wbccc485a",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/schedules/history",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"schedules",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "History Detail",
+					"id": "76bc2c6a-70fe-4fd8-b502-535c09935c42",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "11|8wq1zix8OqyfthO0tVVNeudqOVbtpXE0c0KKh97Wbccc485a",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/schedules/history/3",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"schedules",
+								"history",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auto Create Schedule by QR",
+					"id": "e169b728-2813-4763-b60b-c5f5f3cdf0ce",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "14|NszNKNiSX93kuf8SZx7yfCzBODxkQrQ2nahinFH5e5ef9225",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/autoCreateSchedule/ghS2TD",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"autoCreateSchedule",
+								"ghS2TD"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Trash List",
+					"id": "8a3e9c35-e561-442f-8d92-2d7b391b24a9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "19|4aWqukvy9KGwqvWX0TKjVK7c3ICbpOHdJOoYq9Y0138cf424",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{stmik}}/api/driver/trash",
+							"host": [
+								"{{stmik}}"
+							],
+							"path": [
+								"api",
+								"driver",
+								"trash"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "02ba8c9e-c7a3-4264-be37-4a826a2ae24e"
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "17f49421-a1b9-4627-b806-2cbe11c9b9cb",
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "d89a8484-4d5f-4ffa-b391-518cc1d430dd",
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "95ff7de6-3b2d-4005-b829-8649659e32a0",
+			"key": "local",
+			"value": "http://bank-sampah.test"
+		},
+		{
+			"id": "cb7ddafd-68eb-4ca1-aad5-f3cce0ddf04a",
+			"key": "stmik",
+			"value": "https://stmik-banksampah.neumediradev.my.id",
+			"type": "string"
+		}
+	]
+}
